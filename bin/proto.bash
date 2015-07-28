@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 PROTO_FILE=${1}
 PB_GO_FILE=$(echo ${PROTO_FILE} | sed "s/\.proto/\.pb.go/")

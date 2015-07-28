@@ -65,6 +65,6 @@ clean:
 	go clean -i ./...
 
 proto: install
-	bin/proto.sh protolog.proto
-	bin/proto.sh testing/testing.proto
-	bin/proto.sh benchmark/benchmark.proto
+	bin/proto.bash protolog.proto
+	bin/proto.bash testing/testing.proto
+	bin/proto.bash benchmark/benchmark.proto
