@@ -1,5 +1,7 @@
 # protolog
 
+[![Travis](https://img.shields.io/travis/peter-edge/go-protolog.svg)](https://travis-ci.org/peter-edge/go-protolog)
+
 ```shell
 go get go.pedge.io/protolog
 ```
