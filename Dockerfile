@@ -1,4 +1,4 @@
-FROM golang:1.4.2
+FROM pedge/proto3grpc
 MAINTAINER peter.edge@gmail.com
 
 RUN mkdir -p /go/src/go.pedge.io/protolog
