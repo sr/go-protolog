@@ -371,70 +371,70 @@ func WithFields(fields Fields) Logger {
 
 // Debugf calls Debugf on the global Logger.
 func Debugf(format string, args ...interface{}) {
-	globalLogger.Debugf(format, args)
+	globalLogger.Debugf(format, args...)
 }
 
 // Debugln calls Debugln on the global Logger.
 func Debugln(args ...interface{}) {
-	globalLogger.Debugln(args)
+	globalLogger.Debugln(args...)
 }
 
 // Infof calls Infof on the global Logger.
 func Infof(format string, args ...interface{}) {
-	globalLogger.Infof(format, args)
+	globalLogger.Infof(format, args...)
 }
 
 // Infoln calls Infoln on the global Logger.
 func Infoln(args ...interface{}) {
-	globalLogger.Infoln(args)
+	globalLogger.Infoln(args...)
 }
 
 // Warnf calls Warnf on the global Logger.
 func Warnf(format string, args ...interface{}) {
-	globalLogger.Warnf(format, args)
+	globalLogger.Warnf(format, args...)
 }
 
 // Warnln calls Warnln on the global Logger.
 func Warnln(args ...interface{}) {
-	globalLogger.Warnln(args)
+	globalLogger.Warnln(args...)
 }
 
 // Errorf calls Errorf on the global Logger.
 func Errorf(format string, args ...interface{}) {
-	globalLogger.Errorf(format, args)
+	globalLogger.Errorf(format, args...)
 }
 
 // Errorln calls Errorln on the global Logger.
 func Errorln(args ...interface{}) {
-	globalLogger.Errorln(args)
+	globalLogger.Errorln(args...)
 }
 
 // Fatalf calls Fatalf on the global Logger.
 func Fatalf(format string, args ...interface{}) {
-	globalLogger.Fatalf(format, args)
+	globalLogger.Fatalf(format, args...)
 }
 
 // Fatalln calls Fatalln on the global Logger.
 func Fatalln(args ...interface{}) {
-	globalLogger.Fatalln(args)
+	globalLogger.Fatalln(args...)
 }
 
 // Panicf calls Panicf on the global Logger.
 func Panicf(format string, args ...interface{}) {
-	globalLogger.Panicf(format, args)
+	globalLogger.Panicf(format, args...)
 }
 
 // Panicln calls Panicln on the global Logger.
 func Panicln(args ...interface{}) {
-	globalLogger.Panicln(args)
+	globalLogger.Panicln(args...)
 }
 
 // Printf calls Printf on the global Logger.
 func Printf(format string, args ...interface{}) {
-	globalLogger.Printf(format, args)
+	globalLogger.Printf(format, args...)
 }
 
 // Println calls Println on the global Logger.
 func Println(args ...interface{}) {
-	globalLogger.Println(args)
+	globalLogger.Println(args...)
 }
