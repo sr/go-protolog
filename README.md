@@ -1,5 +1,7 @@
 # protolog
 
+[![Shippable](https://api.shippable.com/projects/55b7d76aedd7f2c05289b667/badge/master)](https://app.shippable.com/projects/55b7d76aedd7f2c05289b667)
+
 ```shell
 go get go.pedge.io/protolog
 ```
