@@ -1,0 +1,9 @@
+machine:
+  services:
+    - docker
+dependencies:
+  override:
+    - docker build -t pedge/protolog .
+test:
+  override:
+    - docker run pedge/protolog make
