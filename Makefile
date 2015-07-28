@@ -54,7 +54,7 @@ errcheck: testdeps
 
 pretest: lint vet errcheck
 
-test: testdeps pretest proto
+test: testdeps pretest
 	go test -test.v ./...
 
 bench: testdeps proto
