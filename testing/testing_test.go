@@ -105,6 +105,11 @@ func TestPrintSomeStuff(t *testing.T) {
 }
 
 func TestPrintSomeStuffLogrus(t *testing.T) {
+	logrus.SetPusherOptions(logrus.PusherOptions{})
+	testPrintSomeStuff(t, protolog.GlobalLogger())
+}
+
+func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 	logrus.SetPusherOptions(
 		logrus.PusherOptions{
 			Formatter: &stdlogrus.TextFormatter{
