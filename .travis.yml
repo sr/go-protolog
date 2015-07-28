@@ -11,4 +11,4 @@ before_script:
   - mkdir -p ${GOPATH}/src/go.pedge.io
   - ln -s ${GOPATH}/src/github.com/peter-edge/go-protolog ${GOPATH}/src/go.pedge.io/protolog
 script:
-  - make test
+  - go test -test.v ./...
