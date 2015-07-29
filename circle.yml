@@ -7,3 +7,9 @@ dependencies:
 test:
   override:
     - docker run pedge/protolog make
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push pedge/protolog
