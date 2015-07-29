@@ -45,7 +45,7 @@ lint: testdeps
 	done
 
 vet: testdeps
-	go get -v golang.org/x/tools/cmd/vet
+	-go get -v golang.org/x/tools/cmd/vet
 	go vet ./...
 
 errcheck: testdeps
