@@ -88,7 +88,9 @@ func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 					return nil, fmt.Errorf("protolog: expected *protolog.Context, got %T", context)
 				}
 				for key, value := range protologContext.Fields {
-					logrusEntry.Data[key] = value
+					if value != "" {
+						logrusEntry.Data[key] = value
+					}
 				}
 			default:
 				if err := addProtoMessage(logrusEntry, context); err != nil {
