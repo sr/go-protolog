@@ -82,12 +82,12 @@ func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 		for _, context := range contexts {
 			name := context.ProtologName()
 			switch name {
-			case "protolog.Context":
-				protologContext, ok := context.(*protolog.Context)
+			case "protolog.Fields":
+				protologFields, ok := context.(*protolog.Fields)
 				if !ok {
-					return nil, fmt.Errorf("protolog: expected *protolog.Context, got %T", context)
+					return nil, fmt.Errorf("protolog: expected *protolog.Fields, got %T", context)
 				}
-				for key, value := range protologContext.Fields {
+				for key, value := range protologFields.Value {
 					if value != "" {
 						logrusEntry.Data[key] = value
 					}

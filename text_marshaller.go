@@ -76,12 +76,12 @@ func (t *textMarshaller) Marshal(entry *Entry) ([]byte, error) {
 		for i, context := range contexts {
 			name := context.ProtologName()
 			switch name {
-			case "protolog.Context":
-				protologContext, ok := context.(*Context)
+			case "protolog.Fields":
+				protologFields, ok := context.(*Fields)
 				if !ok {
-					return nil, fmt.Errorf("protolog: expected *protolog.Context, got %T", context)
+					return nil, fmt.Errorf("protolog: expected *protolog.Fields, got %T", context)
 				}
-				data, err := json.Marshal(protologContext.Fields)
+				data, err := json.Marshal(protologFields.Value)
 				if err != nil {
 					return nil, err
 				}

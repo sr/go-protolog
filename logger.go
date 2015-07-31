@@ -10,14 +10,14 @@ import (
 )
 
 type logger struct {
-	pusher         Pusher
-	idAllocator    IDAllocator
-	timer          Timer
-	errorHandler   ErrorHandler
-	marshalFunc    func(proto.Message) ([]byte, error)
-	level          Level
-	contexts       []*Entry_Message
-	genericContext *Context
+	pusher        Pusher
+	idAllocator   IDAllocator
+	timer         Timer
+	errorHandler  ErrorHandler
+	marshalFunc   func(proto.Message) ([]byte, error)
+	level         Level
+	contexts      []*Entry_Message
+	genericFields *Fields
 }
 
 func newLogger(pusher Pusher, options LoggerOptions) *logger {
@@ -29,8 +29,8 @@ func newLogger(pusher Pusher, options LoggerOptions) *logger {
 		options.MarshalFunc,
 		Level_LEVEL_NONE,
 		make([]*Entry_Message, 0),
-		&Context{
-			Fields: make(map[string]string, 0),
+		&Fields{
+			Value: make(map[string]string, 0),
 		},
 	}
 	if logger.idAllocator == nil {
@@ -58,7 +58,7 @@ func (l *logger) AtLevel(level Level) Logger {
 		l.marshalFunc,
 		level,
 		l.contexts,
-		l.genericContext,
+		l.genericFields,
 	}
 }
 
@@ -76,7 +76,7 @@ func (l *logger) WithContext(context Message) Logger {
 		l.marshalFunc,
 		l.level,
 		append(l.contexts, entryContext),
-		l.genericContext,
+		l.genericFields,
 	}
 }
 
@@ -131,15 +131,15 @@ func (l *logger) Writer() io.Writer {
 }
 
 func (l *logger) WithField(key string, value interface{}) Logger {
-	return l.WithFields(Fields{key: value})
+	return l.WithFields(map[string]interface{}{key: value})
 }
 
-func (l *logger) WithFields(fields Fields) Logger {
+func (l *logger) WithFields(fields map[string]interface{}) Logger {
 	contextFields := make(map[string]string, len(fields))
 	for key, value := range fields {
 		contextFields[key] = fmt.Sprintf("%v", value)
 	}
-	for key, value := range l.genericContext.Fields {
+	for key, value := range l.genericFields.Value {
 		contextFields[key] = value
 	}
 	return &logger{
@@ -150,8 +150,8 @@ func (l *logger) WithFields(fields Fields) Logger {
 		l.marshalFunc,
 		l.level,
 		l.contexts,
-		&Context{
-			Fields: contextFields,
+		&Fields{
+			Value: contextFields,
 		},
 	}
 }
@@ -237,8 +237,8 @@ func (l *logger) printWithError(level Level, event Message) error {
 		return err
 	}
 	entryContexts := l.contexts
-	if len(l.genericContext.Fields) > 0 {
-		entryGenericContext, err := messageToEntryMessage(l.genericContext, l.marshalFunc)
+	if len(l.genericFields.Value) > 0 {
+		entryGenericContext, err := messageToEntryMessage(l.genericFields, l.marshalFunc)
 		if err != nil {
 			return err
 		}

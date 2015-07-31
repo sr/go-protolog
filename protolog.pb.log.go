@@ -6,15 +6,15 @@ package protolog
 
 
 func init() {
-	Register("protolog.Context", func() Message { return &Context{} })
+	Register("protolog.Fields", func() Message { return &Fields{} })
 	Register("protolog.Event", func() Message { return &Event{} })
 	Register("protolog.WriterOutput", func() Message { return &WriterOutput{} })
 	Register("protolog.Entry", func() Message { return &Entry{} })
 	Register("protolog.Entry.Message", func() Message { return &Entry_Message{} })
 }
 
-func (m *Context) ProtologName() string {
-	return "protolog.Context"
+func (m *Fields) ProtologName() string {
+	return "protolog.Fields"
 }
 func (m *Event) ProtologName() string {
 	return "protolog.Event"

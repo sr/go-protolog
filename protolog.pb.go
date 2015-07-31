@@ -46,19 +46,19 @@ func (x Level) String() string {
 	return proto.EnumName(Level_name, int32(x))
 }
 
-// Context is a generic context Message used for
+// Fields is a generic context Message used for
 // the Logger functions WithField and WithFields.
-type Context struct {
-	Fields map[string]string `protobuf:"bytes,1,rep,name=fields" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+type Fields struct {
+	Value map[string]string `protobuf:"bytes,1,rep,name=value" json:"value,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
-func (m *Context) Reset()         { *m = Context{} }
-func (m *Context) String() string { return proto.CompactTextString(m) }
-func (*Context) ProtoMessage()    {}
+func (m *Fields) Reset()         { *m = Fields{} }
+func (m *Fields) String() string { return proto.CompactTextString(m) }
+func (*Fields) ProtoMessage()    {}
 
-func (m *Context) GetFields() map[string]string {
+func (m *Fields) GetValue() map[string]string {
 	if m != nil {
-		return m.Fields
+		return m.Value
 	}
 	return nil
 }

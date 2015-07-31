@@ -54,9 +54,6 @@ type WriteFlusher interface {
 	Flusher
 }
 
-// Fields are a representation of key/value fields without using protocol buffers.
-type Fields map[string]interface{}
-
 // Logger is the main logging interface. All methods are also replicated
 // on the package and attached to a global Logger.
 type Logger interface {
@@ -80,7 +77,7 @@ type Logger interface {
 	Writer() io.Writer
 
 	WithField(key string, value interface{}) Logger
-	WithFields(fields Fields) Logger
+	WithFields(fields map[string]interface{}) Logger
 	Debugf(format string, args ...interface{})
 	Debugln(args ...interface{})
 	Infof(format string, args ...interface{})
@@ -365,7 +362,7 @@ func WithField(key string, value interface{}) Logger {
 }
 
 // WithFields calls WithFields on the global Logger.
-func WithFields(fields Fields) Logger {
+func WithFields(fields map[string]interface{}) Logger {
 	return globalLogger.WithFields(fields)
 }
 

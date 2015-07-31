@@ -4,10 +4,10 @@ import "google/protobuf/timestamp.proto";
 
 package protolog;
 
-// Context is a generic context Message used for
+// Fields is a generic context Message used for
 // the Logger functions WithField and WithFields.
-message Context {
-  map<string, string> fields = 1;
+message Fields {
+  map<string, string> value = 1;
 }
 
 // Event is a generic event Message used for
