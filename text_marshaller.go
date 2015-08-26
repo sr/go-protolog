@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	jsonPBMarshaller = &jsonpb.Marshaller{EnumsAsString: true}
+	jsonPBMarshaller = &jsonpb.Marshaler{EnumsAsString: true}
 )
 
 type textMarshaller struct {
