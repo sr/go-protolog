@@ -7,8 +7,6 @@ import (
 	"os"
 
 	"go.pedge.io/proto/time"
-
-	"github.com/golang/protobuf/proto"
 )
 
 type logger struct {
@@ -16,7 +14,6 @@ type logger struct {
 	idAllocator   IDAllocator
 	timer         Timer
 	errorHandler  ErrorHandler
-	marshalFunc   func(proto.Message) ([]byte, error)
 	level         Level
 	contexts      []*Entry_Message
 	genericFields *Fields
@@ -28,7 +25,6 @@ func newLogger(pusher Pusher, options LoggerOptions) *logger {
 		options.IDAllocator,
 		options.Timer,
 		options.ErrorHandler,
-		options.MarshalFunc,
 		Level_LEVEL_NONE,
 		make([]*Entry_Message, 0),
 		&Fields{
@@ -57,7 +53,6 @@ func (l *logger) AtLevel(level Level) Logger {
 		l.idAllocator,
 		l.timer,
 		l.errorHandler,
-		l.marshalFunc,
 		level,
 		l.contexts,
 		l.genericFields,
@@ -65,7 +60,7 @@ func (l *logger) AtLevel(level Level) Logger {
 }
 
 func (l *logger) WithContext(context Message) Logger {
-	entryContext, err := messageToEntryMessage(context, l.marshalFunc)
+	entryContext, err := messageToEntryMessage(context)
 	if err != nil {
 		l.errorHandler.Handle(err)
 		return l
@@ -75,7 +70,6 @@ func (l *logger) WithContext(context Message) Logger {
 		l.idAllocator,
 		l.timer,
 		l.errorHandler,
-		l.marshalFunc,
 		l.level,
 		append(l.contexts, entryContext),
 		l.genericFields,
@@ -149,7 +143,6 @@ func (l *logger) WithFields(fields map[string]interface{}) Logger {
 		l.idAllocator,
 		l.timer,
 		l.errorHandler,
-		l.marshalFunc,
 		l.level,
 		l.contexts,
 		&Fields{
@@ -234,13 +227,13 @@ func (l *logger) printWithError(level Level, event Message) error {
 	//if err := checkNameRegistered(event.ProtologName()); err != nil {
 	//return err
 	//}
-	entryEvent, err := messageToEntryMessage(event, l.marshalFunc)
+	entryEvent, err := messageToEntryMessage(event)
 	if err != nil {
 		return err
 	}
 	entryContexts := l.contexts
 	if len(l.genericFields.Value) > 0 {
-		entryGenericContext, err := messageToEntryMessage(l.genericFields, l.marshalFunc)
+		entryGenericContext, err := messageToEntryMessage(l.genericFields)
 		if err != nil {
 			return err
 		}

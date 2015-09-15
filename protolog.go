@@ -123,9 +123,6 @@ type LoggerOptions struct {
 	IDAllocator  IDAllocator
 	Timer        Timer
 	ErrorHandler ErrorHandler
-	// MarshalFunc is the function used to serialize protobuf Messages.
-	// The default behavior is to call proto.Marshal.
-	MarshalFunc func(proto.Message) ([]byte, error)
 }
 
 // NewLogger constructs a new Logger using the given Pusher.
@@ -188,8 +185,7 @@ type Decoder interface {
 
 // ReadPullerOptions defines options for a read Puller.
 type ReadPullerOptions struct {
-	Unmarshaller  Unmarshaller
-	UnmarshalFunc func([]byte, proto.Message) error
+	Unmarshaller Unmarshaller
 }
 
 // NewReadPuller constructs a new Puller that reads from the given Reader
@@ -208,10 +204,6 @@ type MarshallerOptions struct {
 	DisableLevel bool
 	// DisableContexts will suppress the printing of Entry contexts.
 	DisableContexts bool
-	// UnmarshalFunc is the function used to unmarshal previously
-	// marshalled protobuf Messages. The default behavior is to use
-	// proto.Unmarshal
-	UnmarshalFunc func([]byte, proto.Message) error
 }
 
 // NewTextMarshaller constructs a new Marshaller that produces human-readable
@@ -255,13 +247,13 @@ func (f *FileFlusher) Flush() error {
 }
 
 // UnmarshalledContexts returns the context Messages marshalled on an Entry object.
-func (m *Entry) UnmarshalledContexts(unmarshalFunc func([]byte, proto.Message) error) ([]Message, error) {
-	return entryMessagesToMessages(m.Context, unmarshalFunc)
+func (m *Entry) UnmarshalledContexts() ([]Message, error) {
+	return entryMessagesToMessages(m.Context)
 }
 
 // UnmarshalledEvent returns the event Message marshalled on an Entry object.
-func (m *Entry) UnmarshalledEvent(unmarshalFunc func([]byte, proto.Message) error) (Message, error) {
-	return entryMessageToMessage(m.Event, unmarshalFunc)
+func (m *Entry) UnmarshalledEvent() (Message, error) {
+	return entryMessageToMessage(m.Event)
 }
 
 // Flush calls Flush on the global Logger.

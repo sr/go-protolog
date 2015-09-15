@@ -76,7 +76,7 @@ func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 		logrusEntry.Data["_id"] = entry.Id
 	}
 	if !p.options.DisableContexts {
-		contexts, err := entry.UnmarshalledContexts(p.options.UnmarshalFunc)
+		contexts, err := entry.UnmarshalledContexts()
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +100,7 @@ func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 			}
 		}
 	}
-	event, err := entry.UnmarshalledEvent(p.options.UnmarshalFunc)
+	event, err := entry.UnmarshalledEvent()
 	if err != nil {
 		return nil, err
 	}

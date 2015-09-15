@@ -10,13 +10,11 @@ import (
 )
 
 var (
-	defaultIDAllocator   = &idAllocator{instanceID, 0}
-	defaultTimer         = &timer{}
-	defaultErrorHandler  = &errorHandler{}
-	defaultMarshaller    = &marshaller{}
-	defaultUnmarshaller  = &unmarshaller{}
-	defaultMarshalFunc   = proto.Marshal
-	defaultUnmarshalFunc = proto.Unmarshal
+	defaultIDAllocator  = &idAllocator{instanceID, 0}
+	defaultTimer        = &timer{}
+	defaultErrorHandler = &errorHandler{}
+	defaultMarshaller   = &marshaller{}
+	defaultUnmarshaller = &unmarshaller{}
 
 	// go.uuid calls rand.Read, which gets down to a mutex
 	// we just need ids to be unique across logging processes
