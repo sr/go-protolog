@@ -8,6 +8,8 @@ import (
 	"time"
 	"unicode"
 
+	"go.pedge.io/proto/time"
+
 	"github.com/golang/protobuf/jsonpb"
 )
 
@@ -30,7 +32,7 @@ func (t *textMarshaller) Marshal(entry *Entry) ([]byte, error) {
 		_ = buffer.WriteByte(' ')
 	}
 	if !t.options.DisableTimestamp {
-		stdTime := TimestampToTime(entry.Timestamp)
+		stdTime := prototime.TimestampToTime(entry.Timestamp)
 		_, _ = buffer.WriteString(stdTime.Format(time.RFC3339))
 		_ = buffer.WriteByte(' ')
 	}

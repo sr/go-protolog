@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	"go.pedge.io/proto/time"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -248,7 +250,7 @@ func (l *logger) printWithError(level Level, event Message) error {
 		&Entry{
 			Id:        l.idAllocator.Allocate(),
 			Level:     level,
-			Timestamp: TimeToTimestamp(l.timer.Now()),
+			Timestamp: prototime.TimeToTimestamp(l.timer.Now()),
 			Context:   entryContexts,
 			Event:     entryEvent,
 		},

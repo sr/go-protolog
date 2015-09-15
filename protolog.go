@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"go.pedge.io/google-protobuf"
 )
 
 var (
@@ -263,22 +262,6 @@ func (m *Entry) UnmarshalledContexts(unmarshalFunc func([]byte, proto.Message) e
 // UnmarshalledEvent returns the event Message marshalled on an Entry object.
 func (m *Entry) UnmarshalledEvent(unmarshalFunc func([]byte, proto.Message) error) (Message, error) {
 	return entryMessageToMessage(m.Event, unmarshalFunc)
-}
-
-// TimeToTimestamp is a utility function that converts a time.Time into
-// a *google_protobuf.Timestamp.
-func TimeToTimestamp(t time.Time) *google_protobuf.Timestamp {
-	unixNano := t.UnixNano()
-	return &google_protobuf.Timestamp{
-		Seconds: unixNano / int64(time.Second),
-		Nanos:   int32(unixNano % int64(time.Second)),
-	}
-}
-
-// TimestampToTime is a utility function that converts a *google_protobuf.Timestamp
-// into a time.Time.
-func TimestampToTime(timestamp *google_protobuf.Timestamp) time.Time {
-	return time.Unix(timestamp.Seconds, int64(timestamp.Nanos)).UTC()
 }
 
 // Flush calls Flush on the global Logger.

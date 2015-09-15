@@ -12,6 +12,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"go.pedge.io/proto/time"
 	"go.pedge.io/protolog"
 )
 
@@ -68,7 +69,7 @@ func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 		return nil, fmt.Errorf("protolog: no logrus Level for %v", entry.Level)
 	}
 	logrusEntry := logrus.NewEntry(p.logger)
-	logrusEntry.Time = protolog.TimestampToTime(entry.Timestamp)
+	logrusEntry.Time = prototime.TimestampToTime(entry.Timestamp)
 	logrusEntry.Level = logrusLevel
 
 	if p.options.EnableID {
