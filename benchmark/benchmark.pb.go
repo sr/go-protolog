@@ -5,9 +5,13 @@
 package benchmark
 
 import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 type Foo struct {
 	One string   `protobuf:"bytes,1,opt,name=one" json:"one,omitempty"`
