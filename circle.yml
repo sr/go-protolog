@@ -6,9 +6,7 @@ dependencies:
     - docker build -t pedge/protolog .
 test:
   override:
-    - docker run pedge/protolog make:
-        environment:
-          NO_DOCKER: 1
+    - docker run -e NO_DOCKER=1 pedge/protolog make
 deployment:
   hub:
     branch: master
