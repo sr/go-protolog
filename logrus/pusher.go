@@ -161,7 +161,20 @@ func getFieldsForProtoMessage(message proto.Message) (map[string]interface{}, er
 	if err := json.Unmarshal(buffer.Bytes(), &m); err != nil {
 		return nil, err
 	}
-	return m, nil
+	n := make(map[string]interface{}, len(m))
+	for key, value := range m {
+		switch value.(type) {
+		case map[string]interface{}:
+			data, err := json.Marshal(value)
+			if err != nil {
+				return nil, err
+			}
+			n[key] = string(data)
+		default:
+			n[key] = value
+		}
+	}
+	return n, nil
 }
 
 func trimRightSpace(s string) string {
