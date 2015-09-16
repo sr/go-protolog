@@ -137,6 +137,7 @@ func NewStandardLogger(writeFlusher WriteFlusher) Logger {
 			writeFlusher,
 			WritePusherOptions{
 				Marshaller: NewTextMarshaller(MarshallerOptions{}),
+				Newline:    true,
 			},
 		),
 		LoggerOptions{},
@@ -150,16 +151,10 @@ type Marshaller interface {
 	Marshal(entry *Entry) ([]byte, error)
 }
 
-// Encoder encodes a marshalled Entry. This is used for adding metadata
-// if the marshalled Entry is being sent over the wire.
-type Encoder interface {
-	Encode(p []byte) ([]byte, error)
-}
-
 // WritePusherOptions defines options for constructing a new write Pusher.
 type WritePusherOptions struct {
 	Marshaller Marshaller
-	Encoder    Encoder
+	Newline    bool
 }
 
 // NewWritePusher constructs a new Pusher that writes to the given WriteFlusher.
@@ -172,15 +167,10 @@ type Puller interface {
 	Pull() (*Entry, error)
 }
 
-// Unmarshaller unmarshalls a marshalled Entry object.
+// Unmarshaller unmarshalls a marshalled Entry object. At the end
+// of a stream, Unmarshaller will return io.EOF.
 type Unmarshaller interface {
-	Unmarshal(p []byte, entry *Entry) error
-}
-
-// Decoder decodes Entry objects from an io.Reader. At the end
-// of a stream, Decoder will return io.EOF.
-type Decoder interface {
-	Decode(reader io.Reader) ([]byte, error)
+	Unmarshal(reader io.Reader, entry *Entry) error
 }
 
 // ReadPullerOptions defines options for a read Puller.
@@ -189,9 +179,9 @@ type ReadPullerOptions struct {
 }
 
 // NewReadPuller constructs a new Puller that reads from the given Reader
-// and decodes using the given Decoder.
-func NewReadPuller(reader io.Reader, decoder Decoder, options ReadPullerOptions) Puller {
-	return newReadPuller(reader, decoder, options)
+// and decodes using the given Unmarshaller.
+func NewReadPuller(reader io.Reader, options ReadPullerOptions) Puller {
+	return newReadPuller(reader, options)
 }
 
 // MarshallerOptions provides options for creating Marshallers.
@@ -210,18 +200,6 @@ type MarshallerOptions struct {
 // marshalled Entry objects. This Marshaller is current inefficient.
 func NewTextMarshaller(options MarshallerOptions) Marshaller {
 	return newTextMarshaller(options)
-}
-
-// NewWireEncoder constructs an Encoder that produces values which can
-// be sent over the wire.
-func NewWireEncoder() Encoder {
-	return wireEncoderInstance
-}
-
-// NewWireDecoder constructs a Decoder that can decode values encoded
-// with a wire Encoder.
-func NewWireDecoder() Decoder {
-	return wireDecoderInstance
 }
 
 // NewWriterFlusher wraps an io.Writer into a WriteFlusher.
