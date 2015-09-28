@@ -47,6 +47,7 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 			},
 		},
 	)
+	logger.Info(&Empty{})
 	writer := logger.InfoWriter()
 	for _, s := range []string{
 		"hello",
@@ -85,6 +86,7 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 		t,
 		`DEBUG protolog.testing.Foo {"string_field":"one","int32_field":2}
 INFO  protolog.testing.Baz {"bat":{"ban":{"string_field":"one","int32_field":2}}}
+INFO  protolog.testing.Empty {}
 INFO  hello
 INFO  world
 INFO  writing
