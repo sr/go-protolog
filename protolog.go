@@ -228,6 +228,11 @@ func (f *FileFlusher) Flush() error {
 	return f.Sync()
 }
 
+// NewMultiWriteFlusher contstructs a new WriteFlusher that calls all the given WriteFlushers.
+func NewMultiWriteFlusher(writeFlushers ...WriteFlusher) WriteFlusher {
+	return newMultiWriteFlusher(writeFlushers)
+}
+
 // UnmarshalledContexts returns the context Messages marshalled on an Entry object.
 func (m *Entry) UnmarshalledContexts() ([]Message, error) {
 	return entryMessagesToMessages(m.Context)
