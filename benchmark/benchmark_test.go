@@ -388,7 +388,7 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 	require.NoError(b, err)
 	logrus.SetPusherOptions(
 		logrus.PusherOptions{
-			Out: file,
+			Out: protolog.NewFileFlusher(file),
 			Formatter: &stdlogrus.TextFormatter{
 				ForceColors: true,
 			},
