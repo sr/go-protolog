@@ -15,9 +15,9 @@ import (
 
 var (
 	// DiscardLogger is a Logger that discards all logs.
-	DiscardLogger = NewStandardLogger(NewWriterFlusher(ioutil.Discard))
+	DiscardLogger = NewStandardLogger(NewStandardWritePusher(NewWriterFlusher(ioutil.Discard)))
 
-	globalLogger = NewStandardLogger(NewFileFlusher(os.Stderr))
+	globalLogger = NewStandardLogger(NewStandardWritePusher(NewFileFlusher(os.Stderr)))
 	globalLock   = &sync.Mutex{}
 )
 
@@ -135,15 +135,9 @@ func NewLogger(pusher Pusher, options LoggerOptions) Logger {
 }
 
 // NewStandardLogger constructs a new Logger that logs using a text Marshaller.
-func NewStandardLogger(writeFlusher WriteFlusher) Logger {
+func NewStandardLogger(pusher Pusher) Logger {
 	return NewLogger(
-		NewWritePusher(
-			writeFlusher,
-			WritePusherOptions{
-				Marshaller: NewTextMarshaller(MarshallerOptions{}),
-				Newline:    true,
-			},
-		),
+		pusher,
 		LoggerOptions{},
 	).AtLevel(
 		Level_LEVEL_INFO,
@@ -164,6 +158,17 @@ type WritePusherOptions struct {
 // NewWritePusher constructs a new Pusher that writes to the given WriteFlusher.
 func NewWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) Pusher {
 	return newWritePusher(writeFlusher, options)
+}
+
+// NewStandardWritePusher constructs a new Pusher using the default options.
+func NewStandardWritePusher(writeFlusher WriteFlusher) Pusher {
+	return NewWritePusher(
+		writeFlusher,
+		WritePusherOptions{
+			Marshaller: NewTextMarshaller(MarshallerOptions{}),
+			Newline:    true,
+		},
+	)
 }
 
 // Puller pulls Entry objects from a persistent store.
@@ -228,9 +233,14 @@ func (f *FileFlusher) Flush() error {
 	return f.Sync()
 }
 
-// NewMultiWriteFlusher contstructs a new WriteFlusher that calls all the given WriteFlushers.
+// NewMultiWriteFlusher constructs a new WriteFlusher that calls all the given WriteFlushers.
 func NewMultiWriteFlusher(writeFlushers ...WriteFlusher) WriteFlusher {
 	return newMultiWriteFlusher(writeFlushers)
+}
+
+// NewMultiPusher constructs a new Pusher that calls all the given Pushers.
+func NewMultiPusher(pushers ...Pusher) Pusher {
+	return newMultiPusher(pushers)
 }
 
 // UnmarshalledContexts returns the context Messages marshalled on an Entry object.

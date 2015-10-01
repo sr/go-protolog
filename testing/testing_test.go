@@ -101,7 +101,7 @@ WARN  a warning line contexts=[{"someKey":"someValue"}]
 }
 
 func TestPrintSomeStuff(t *testing.T) {
-	testPrintSomeStuff(t, protolog.NewStandardLogger(protolog.NewFileFlusher(os.Stderr)))
+	testPrintSomeStuff(t, protolog.NewStandardLogger(protolog.NewStandardWritePusher(protolog.NewFileFlusher(os.Stderr))))
 }
 
 func TestPrintSomeStuffLogrus(t *testing.T) {
