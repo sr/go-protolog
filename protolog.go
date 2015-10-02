@@ -6,6 +6,7 @@ package protolog // import "go.pedge.io/protolog"
 import (
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -38,6 +39,15 @@ func SetLevel(level Level) {
 	globalLock.Lock()
 	defer globalLock.Unlock()
 	globalLogger = globalLogger.AtLevel(level)
+}
+
+// RedirectStdLogger will redirect logs to golang's standard logger to the global Logger instance.
+func RedirectStdLogger() {
+	globalLock.Lock()
+	defer globalLock.Unlock()
+	log.SetFlags(0)
+	log.SetOutput(globalLogger.Writer())
+	log.SetPrefix("")
 }
 
 // Message is a proto.Message that also has the ProtologName() method to get the name of the message.
