@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+import "google/protobuf/descriptor.proto";
 import "google/protobuf/timestamp.proto";
 
 package protolog;
@@ -46,4 +47,8 @@ message Entry {
   google.protobuf.Timestamp timestamp = 3;
   repeated Message context = 4;
   Message event = 5;
+}
+
+extend google.protobuf.MessageOptions {
+  bool protolog = 82295728;
 }

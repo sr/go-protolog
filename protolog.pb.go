@@ -7,7 +7,8 @@ package protolog
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import google_protobuf "go.pedge.io/google-protobuf"
+import google_protobuf "github.com/golang/protobuf/protoc-gen-go/descriptor"
+import google_protobuf1 "go.pedge.io/google-protobuf"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -89,18 +90,18 @@ func (*WriterOutput) ProtoMessage()    {}
 
 // Entry is the object serialized for logging.
 type Entry struct {
-	Id        string                     `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
-	Level     Level                      `protobuf:"varint,2,opt,name=level,enum=protolog.Level" json:"level,omitempty"`
-	Timestamp *google_protobuf.Timestamp `protobuf:"bytes,3,opt,name=timestamp" json:"timestamp,omitempty"`
-	Context   []*Entry_Message           `protobuf:"bytes,4,rep,name=context" json:"context,omitempty"`
-	Event     *Entry_Message             `protobuf:"bytes,5,opt,name=event" json:"event,omitempty"`
+	Id        string                      `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	Level     Level                       `protobuf:"varint,2,opt,name=level,enum=protolog.Level" json:"level,omitempty"`
+	Timestamp *google_protobuf1.Timestamp `protobuf:"bytes,3,opt,name=timestamp" json:"timestamp,omitempty"`
+	Context   []*Entry_Message            `protobuf:"bytes,4,rep,name=context" json:"context,omitempty"`
+	Event     *Entry_Message              `protobuf:"bytes,5,opt,name=event" json:"event,omitempty"`
 }
 
 func (m *Entry) Reset()         { *m = Entry{} }
 func (m *Entry) String() string { return proto.CompactTextString(m) }
 func (*Entry) ProtoMessage()    {}
 
-func (m *Entry) GetTimestamp() *google_protobuf.Timestamp {
+func (m *Entry) GetTimestamp() *google_protobuf1.Timestamp {
 	if m != nil {
 		return m.Timestamp
 	}
@@ -132,6 +133,15 @@ func (m *Entry_Message) Reset()         { *m = Entry_Message{} }
 func (m *Entry_Message) String() string { return proto.CompactTextString(m) }
 func (*Entry_Message) ProtoMessage()    {}
 
+var E_Protolog = &proto.ExtensionDesc{
+	ExtendedType:  (*google_protobuf.MessageOptions)(nil),
+	ExtensionType: (*bool)(nil),
+	Field:         82295728,
+	Name:          "protolog.protolog",
+	Tag:           "varint,82295728,opt,name=protolog",
+}
+
 func init() {
 	proto.RegisterEnum("protolog.Level", Level_name, Level_value)
+	proto.RegisterExtension(E_Protolog)
 }
