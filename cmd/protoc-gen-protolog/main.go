@@ -10,7 +10,9 @@ import (
 	"text/template"
 
 	"go.pedge.io/proto/plugin"
+	"go.pedge.io/protolog"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 )
 
@@ -69,6 +71,9 @@ func (g *generator) Generate(fileDescriptorProto *descriptor.FileDescriptorProto
 	if err != nil {
 		return nil, err
 	}
+	if tmplData == nil {
+		return nil, nil
+	}
 	buffer := bytes.NewBuffer(nil)
 	if err := tmpl.Execute(buffer, tmplData); err != nil {
 		return nil, err
@@ -80,7 +85,10 @@ func getTmplData(fileDescriptorProto *descriptor.FileDescriptorProto) (*tmplData
 	var messageDatas []*tmplMessageData
 	for _, messageType := range fileDescriptorProto.MessageType {
 		var parents []string
-		messageDatas = getTmplMessageDatas(fileDescriptorProto.GetPackage(), parents, messageType, messageDatas)
+		messageDatas = getTmplMessageDatas(fileDescriptorProto.GetPackage(), parents, false, messageType, messageDatas)
+	}
+	if len(messageDatas) == 0 {
+		return nil, nil
 	}
 	return &tmplData{
 		Name:         fileDescriptorProto.GetName(),
@@ -89,7 +97,13 @@ func getTmplData(fileDescriptorProto *descriptor.FileDescriptorProto) (*tmplData
 	}, nil
 }
 
-func getTmplMessageDatas(pkg string, parents []string, messageType *descriptor.DescriptorProto, messageDatas []*tmplMessageData) []*tmplMessageData {
+func getTmplMessageDatas(pkg string, parents []string, isProtolog bool, messageType *descriptor.DescriptorProto, messageDatas []*tmplMessageData) []*tmplMessageData {
+	if !isProtolog {
+		isProtolog = proto.HasExtension(messageType.Options, protolog.E_Protolog)
+	}
+	if !isProtolog {
+		return messageDatas
+	}
 	protoName := pkg
 	for _, parent := range parents {
 		protoName = protoName + "." + parent
@@ -112,6 +126,7 @@ func getTmplMessageDatas(pkg string, parents []string, messageType *descriptor.D
 			messageDatas = getTmplMessageDatas(
 				pkg,
 				append(parents, name),
+				isProtolog,
 				child,
 				messageDatas,
 			)
