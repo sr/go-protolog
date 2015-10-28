@@ -31,8 +31,8 @@ package {{.GoPackage}}
 import "go.pedge.io/protolog"
 
 func init() {
-{{range $messageData := .MessageDatas}}protolog.Register("{{$messageData.ProtoName}}", func() protolog.Message { return &{{$messageData.GoName}}{} })
-{{end}}}
+	{{range $messageData := .MessageDatas}}{{range $messageType := $messageData.MessageTypes}}protolog.Register("{{$messageData.ProtoName}}", protolog.MessageType_{{$messageType}}, func() protolog.Message { return &{{$messageData.GoName}}{} })
+{{end}}{{end}}}
 
 {{range $messageData := .MessageDatas}}func (m *{{$messageData.GoName}}) ProtologName() string {
 	return "{{$messageData.ProtoName}}"
@@ -48,8 +48,9 @@ type tmplData struct {
 }
 
 type tmplMessageData struct {
-	ProtoName string
-	GoName    string
+	ProtoName    string
+	MessageTypes []string
+	GoName       string
 }
 
 func main() {
@@ -92,7 +93,7 @@ func getTmplData(fileDescriptorProto *descriptor.FileDescriptorProto) (*tmplData
 	for _, messageType := range fileDescriptorProto.MessageType {
 		var parents []string
 		var err error
-		messageDatas, err = getTmplMessageDatas(fileDescriptorProto.GetPackage(), parents, false, messageType, messageDatas)
+		messageDatas, err = getTmplMessageDatas(fileDescriptorProto.GetPackage(), parents, false, false, messageType, messageDatas)
 		if err != nil {
 			return nil, err
 		}
@@ -107,19 +108,21 @@ func getTmplData(fileDescriptorProto *descriptor.FileDescriptorProto) (*tmplData
 	}, nil
 }
 
-func getTmplMessageDatas(pkg string, parents []string, isProtolog bool, messageType *descriptor.DescriptorProto, messageDatas []*tmplMessageData) ([]*tmplMessageData, error) {
-	if !isProtolog {
-		isEvent, err := isBoolExtension(messageType, protolog.E_Event)
+func getTmplMessageDatas(pkg string, parents []string, isEvent bool, isContext bool, messageType *descriptor.DescriptorProto, messageDatas []*tmplMessageData) ([]*tmplMessageData, error) {
+	var err error
+	if !isEvent {
+		isEvent, err = isBoolExtension(messageType, protolog.E_Event)
 		if err != nil {
 			return nil, err
 		}
-		isContext, err := isBoolExtension(messageType, protolog.E_Context)
-		if err != nil {
-			return nil, err
-		}
-		isProtolog = isEvent || isContext
 	}
-	if !isProtolog {
+	if !isContext {
+		isContext, err = isBoolExtension(messageType, protolog.E_Context)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if !isEvent && !isContext {
 		return messageDatas, nil
 	}
 	protoName := pkg
@@ -132,20 +135,25 @@ func getTmplMessageDatas(pkg string, parents []string, isProtolog bool, messageT
 	for i := len(parents) - 1; i >= 0; i-- {
 		goName = parents[i] + "_" + goName
 	}
-	messageDatas = append(
-		messageDatas,
-		&tmplMessageData{
-			ProtoName: protoName,
-			GoName:    goName,
-		},
-	)
+	tmplMessageData := &tmplMessageData{
+		ProtoName:    protoName,
+		MessageTypes: make([]string, 0),
+		GoName:       goName,
+	}
+	if isEvent {
+		tmplMessageData.MessageTypes = append(tmplMessageData.MessageTypes, "MESSAGE_TYPE_EVENT")
+	}
+	if isContext {
+		tmplMessageData.MessageTypes = append(tmplMessageData.MessageTypes, "MESSAGE_TYPE_CONTEXT")
+	}
+	messageDatas = append(messageDatas, tmplMessageData)
 	for _, child := range messageType.NestedType {
 		if child.Options == nil || !child.Options.GetMapEntry() {
-			var err error
 			messageDatas, err = getTmplMessageDatas(
 				pkg,
 				append(parents, name),
-				isProtolog,
+				isEvent,
+				isContext,
 				child,
 				messageDatas,
 			)

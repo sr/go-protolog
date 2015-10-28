@@ -51,10 +51,33 @@ func (x Level) String() string {
 	return proto.EnumName(Level_name, int32(x))
 }
 
+// MessageType is the type of protolog message.
+type MessageType int32
+
+const (
+	MessageType_MESSAGE_TYPE_NONE    MessageType = 0
+	MessageType_MESSAGE_TYPE_EVENT   MessageType = 1
+	MessageType_MESSAGE_TYPE_CONTEXT MessageType = 2
+)
+
+var MessageType_name = map[int32]string{
+	0: "MESSAGE_TYPE_NONE",
+	1: "MESSAGE_TYPE_EVENT",
+	2: "MESSAGE_TYPE_CONTEXT",
+}
+var MessageType_value = map[string]int32{
+	"MESSAGE_TYPE_NONE":    0,
+	"MESSAGE_TYPE_EVENT":   1,
+	"MESSAGE_TYPE_CONTEXT": 2,
+}
+
+func (x MessageType) String() string {
+	return proto.EnumName(MessageType_name, int32(x))
+}
+
 // Fields is a generic context Message used for
 // the Logger functions WithField and WithFields.
 type Fields struct {
-	// option (context) = true;
 	Value map[string]string `protobuf:"bytes,1,rep,name=value" json:"value,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
@@ -72,7 +95,6 @@ func (m *Fields) GetValue() map[string]string {
 // Event is a generic event Message used for
 // the non-protobuf-specific Logger functions.
 type Event struct {
-	// option (event) = true;
 	Message string `protobuf:"bytes,1,opt,name=message" json:"message,omitempty"`
 }
 
@@ -83,7 +105,6 @@ func (*Event) ProtoMessage()    {}
 // WriterOutput is an event Message used for
 // the writer Logger functions.
 type WriterOutput struct {
-	// option (event) = true;
 	Value []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
 }
 
@@ -154,6 +175,7 @@ var E_Context = &proto.ExtensionDesc{
 
 func init() {
 	proto.RegisterEnum("protolog.Level", Level_name, Level_value)
+	proto.RegisterEnum("protolog.MessageType", MessageType_name, MessageType_value)
 	proto.RegisterExtension(E_Event)
 	proto.RegisterExtension(E_Context)
 }
