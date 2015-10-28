@@ -54,6 +54,7 @@ func (x Level) String() string {
 // Fields is a generic context Message used for
 // the Logger functions WithField and WithFields.
 type Fields struct {
+	// option (context) = true;
 	Value map[string]string `protobuf:"bytes,1,rep,name=value" json:"value,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
@@ -71,6 +72,7 @@ func (m *Fields) GetValue() map[string]string {
 // Event is a generic event Message used for
 // the non-protobuf-specific Logger functions.
 type Event struct {
+	// option (event) = true;
 	Message string `protobuf:"bytes,1,opt,name=message" json:"message,omitempty"`
 }
 
@@ -81,6 +83,7 @@ func (*Event) ProtoMessage()    {}
 // WriterOutput is an event Message used for
 // the writer Logger functions.
 type WriterOutput struct {
+	// option (event) = true;
 	Value []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
 }
 
@@ -133,15 +136,24 @@ func (m *Entry_Message) Reset()         { *m = Entry_Message{} }
 func (m *Entry_Message) String() string { return proto.CompactTextString(m) }
 func (*Entry_Message) ProtoMessage()    {}
 
-var E_Protolog = &proto.ExtensionDesc{
+var E_Event = &proto.ExtensionDesc{
 	ExtendedType:  (*google_protobuf.MessageOptions)(nil),
 	ExtensionType: (*bool)(nil),
-	Field:         82295728,
-	Name:          "protolog.protolog",
-	Tag:           "varint,82295728,opt,name=protolog",
+	Field:         50009,
+	Name:          "protolog.event",
+	Tag:           "varint,50009,opt,name=event",
+}
+
+var E_Context = &proto.ExtensionDesc{
+	ExtendedType:  (*google_protobuf.MessageOptions)(nil),
+	ExtensionType: (*bool)(nil),
+	Field:         50010,
+	Name:          "protolog.context",
+	Tag:           "varint,50010,opt,name=context",
 }
 
 func init() {
 	proto.RegisterEnum("protolog.Level", Level_name, Level_value)
-	proto.RegisterExtension(E_Protolog)
+	proto.RegisterExtension(E_Event)
+	proto.RegisterExtension(E_Context)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -12,8 +13,11 @@ import (
 	"go.pedge.io/proto/plugin"
 	"go.pedge.io/protolog"
 
+	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+
+	_ "go.pedge.io/protolog"
 )
 
 var (
@@ -49,6 +53,8 @@ type tmplMessageData struct {
 }
 
 func main() {
+	flag.Parse()
+	defer glog.Flush()
 	if err := do(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
@@ -85,7 +91,11 @@ func getTmplData(fileDescriptorProto *descriptor.FileDescriptorProto) (*tmplData
 	var messageDatas []*tmplMessageData
 	for _, messageType := range fileDescriptorProto.MessageType {
 		var parents []string
-		messageDatas = getTmplMessageDatas(fileDescriptorProto.GetPackage(), parents, false, messageType, messageDatas)
+		var err error
+		messageDatas, err = getTmplMessageDatas(fileDescriptorProto.GetPackage(), parents, false, messageType, messageDatas)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if len(messageDatas) == 0 {
 		return nil, nil
@@ -97,12 +107,20 @@ func getTmplData(fileDescriptorProto *descriptor.FileDescriptorProto) (*tmplData
 	}, nil
 }
 
-func getTmplMessageDatas(pkg string, parents []string, isProtolog bool, messageType *descriptor.DescriptorProto, messageDatas []*tmplMessageData) []*tmplMessageData {
+func getTmplMessageDatas(pkg string, parents []string, isProtolog bool, messageType *descriptor.DescriptorProto, messageDatas []*tmplMessageData) ([]*tmplMessageData, error) {
 	if !isProtolog {
-		isProtolog = proto.HasExtension(messageType.Options, protolog.E_Protolog)
+		isEvent, err := isBoolExtension(messageType, protolog.E_Event)
+		if err != nil {
+			return nil, err
+		}
+		isContext, err := isBoolExtension(messageType, protolog.E_Context)
+		if err != nil {
+			return nil, err
+		}
+		isProtolog = isEvent || isContext
 	}
 	if !isProtolog {
-		return messageDatas
+		return messageDatas, nil
 	}
 	protoName := pkg
 	for _, parent := range parents {
@@ -123,16 +141,20 @@ func getTmplMessageDatas(pkg string, parents []string, isProtolog bool, messageT
 	)
 	for _, child := range messageType.NestedType {
 		if child.Options == nil || !child.Options.GetMapEntry() {
-			messageDatas = getTmplMessageDatas(
+			var err error
+			messageDatas, err = getTmplMessageDatas(
 				pkg,
 				append(parents, name),
 				isProtolog,
 				child,
 				messageDatas,
 			)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
-	return messageDatas
+	return messageDatas, nil
 }
 
 func getGoPackage(fileDescriptorProto *descriptor.FileDescriptorProto) string {
@@ -145,4 +167,22 @@ func getGoPackage(fileDescriptorProto *descriptor.FileDescriptorProto) string {
 		return strings.TrimSuffix(base, ext)
 	}
 	return strings.Replace(fileDescriptorProto.GetPackage(), ".", "_", -1)
+}
+
+func isBoolExtension(messageType *descriptor.DescriptorProto, extensionDesc *proto.ExtensionDesc) (bool, error) {
+	if messageType.Options == nil {
+		return false, nil
+	}
+	if !proto.HasExtension(messageType.Options, extensionDesc) {
+		return false, nil
+	}
+	extensionObj, err := proto.GetExtension(messageType.Options, extensionDesc)
+	if err != nil {
+		return false, err
+	}
+	extension, ok := extensionObj.(*bool)
+	if !ok {
+		return false, fmt.Errorf("%v is not of type bool", extensionObj)
+	}
+	return *extension, nil
 }
