@@ -7,8 +7,7 @@ package protolog_testing
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-
-// discarding unused import protolog "go.pedge.io/protolog"
+import _ "go.pedge.io/protolog"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -20,26 +19,29 @@ type Foo struct {
 	Int32Field  int32  `protobuf:"varint,2,opt,name=int32_field" json:"int32_field,omitempty"`
 }
 
-func (m *Foo) Reset()         { *m = Foo{} }
-func (m *Foo) String() string { return proto.CompactTextString(m) }
-func (*Foo) ProtoMessage()    {}
+func (m *Foo) Reset()                    { *m = Foo{} }
+func (m *Foo) String() string            { return proto.CompactTextString(m) }
+func (*Foo) ProtoMessage()               {}
+func (*Foo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 type Bar struct {
 	StringField string `protobuf:"bytes,1,opt,name=string_field" json:"string_field,omitempty"`
 	Int32Field  int32  `protobuf:"varint,2,opt,name=int32_field" json:"int32_field,omitempty"`
 }
 
-func (m *Bar) Reset()         { *m = Bar{} }
-func (m *Bar) String() string { return proto.CompactTextString(m) }
-func (*Bar) ProtoMessage()    {}
+func (m *Bar) Reset()                    { *m = Bar{} }
+func (m *Bar) String() string            { return proto.CompactTextString(m) }
+func (*Bar) ProtoMessage()               {}
+func (*Bar) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 type Baz struct {
 	Bat *Baz_Bat `protobuf:"bytes,1,opt,name=bat" json:"bat,omitempty"`
 }
 
-func (m *Baz) Reset()         { *m = Baz{} }
-func (m *Baz) String() string { return proto.CompactTextString(m) }
-func (*Baz) ProtoMessage()    {}
+func (m *Baz) Reset()                    { *m = Baz{} }
+func (m *Baz) String() string            { return proto.CompactTextString(m) }
+func (*Baz) ProtoMessage()               {}
+func (*Baz) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 func (m *Baz) GetBat() *Baz_Bat {
 	if m != nil {
@@ -52,9 +54,10 @@ type Baz_Bat struct {
 	Ban *Baz_Bat_Ban `protobuf:"bytes,1,opt,name=ban" json:"ban,omitempty"`
 }
 
-func (m *Baz_Bat) Reset()         { *m = Baz_Bat{} }
-func (m *Baz_Bat) String() string { return proto.CompactTextString(m) }
-func (*Baz_Bat) ProtoMessage()    {}
+func (m *Baz_Bat) Reset()                    { *m = Baz_Bat{} }
+func (m *Baz_Bat) String() string            { return proto.CompactTextString(m) }
+func (*Baz_Bat) ProtoMessage()               {}
+func (*Baz_Bat) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2, 0} }
 
 func (m *Baz_Bat) GetBan() *Baz_Bat_Ban {
 	if m != nil {
@@ -68,13 +71,41 @@ type Baz_Bat_Ban struct {
 	Int32Field  int32  `protobuf:"varint,2,opt,name=int32_field" json:"int32_field,omitempty"`
 }
 
-func (m *Baz_Bat_Ban) Reset()         { *m = Baz_Bat_Ban{} }
-func (m *Baz_Bat_Ban) String() string { return proto.CompactTextString(m) }
-func (*Baz_Bat_Ban) ProtoMessage()    {}
+func (m *Baz_Bat_Ban) Reset()                    { *m = Baz_Bat_Ban{} }
+func (m *Baz_Bat_Ban) String() string            { return proto.CompactTextString(m) }
+func (*Baz_Bat_Ban) ProtoMessage()               {}
+func (*Baz_Bat_Ban) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2, 0, 0} }
 
 type Empty struct {
 }
 
-func (m *Empty) Reset()         { *m = Empty{} }
-func (m *Empty) String() string { return proto.CompactTextString(m) }
-func (*Empty) ProtoMessage()    {}
+func (m *Empty) Reset()                    { *m = Empty{} }
+func (m *Empty) String() string            { return proto.CompactTextString(m) }
+func (*Empty) ProtoMessage()               {}
+func (*Empty) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func init() {
+	proto.RegisterType((*Foo)(nil), "protolog.testing.Foo")
+	proto.RegisterType((*Bar)(nil), "protolog.testing.Bar")
+	proto.RegisterType((*Baz)(nil), "protolog.testing.Baz")
+	proto.RegisterType((*Baz_Bat)(nil), "protolog.testing.Baz.Bat")
+	proto.RegisterType((*Baz_Bat_Ban)(nil), "protolog.testing.Baz.Bat.Ban")
+	proto.RegisterType((*Empty)(nil), "protolog.testing.Empty")
+}
+
+var fileDescriptor0 = []byte{
+	// 196 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0x12, 0x2d, 0x49, 0x2d, 0x2e,
+	0xc9, 0xcc, 0x4b, 0xd7, 0x87, 0xd2, 0x7a, 0x05, 0x45, 0xf9, 0x25, 0xf9, 0x42, 0x02, 0x60, 0x2a,
+	0x27, 0x3f, 0x5d, 0x0f, 0x2a, 0x2e, 0xa5, 0x9c, 0x9e, 0xaf, 0x57, 0x90, 0x9a, 0x92, 0x9e, 0xaa,
+	0x97, 0x99, 0xaf, 0x0f, 0x93, 0x85, 0x33, 0x20, 0xda, 0x94, 0xac, 0xb8, 0x98, 0xdd, 0xf2, 0xf3,
+	0x85, 0x44, 0xb8, 0x78, 0x8a, 0x4b, 0x8a, 0x80, 0xba, 0xe2, 0xd3, 0x32, 0x53, 0x73, 0x52, 0x24,
+	0x18, 0x15, 0x18, 0x35, 0x38, 0x85, 0x84, 0xb9, 0xb8, 0x33, 0xf3, 0x4a, 0x8c, 0x8d, 0xa0, 0x82,
+	0x4c, 0x40, 0x41, 0x56, 0x2b, 0x8e, 0x13, 0x5b, 0x25, 0x18, 0x2f, 0x00, 0x31, 0x48, 0xaf, 0x53,
+	0x62, 0x11, 0x79, 0x7a, 0xe7, 0x30, 0x82, 0x34, 0x57, 0x09, 0xa9, 0x71, 0x31, 0x27, 0x25, 0x96,
+	0x80, 0xf5, 0x70, 0x1b, 0x49, 0xea, 0xa1, 0x7b, 0x42, 0x0f, 0xa8, 0x06, 0x88, 0x4b, 0xa4, 0x92,
+	0x41, 0xca, 0x4b, 0x84, 0xb4, 0x40, 0xca, 0xf3, 0xa0, 0xca, 0x65, 0x71, 0x2a, 0x07, 0xe2, 0x3c,
+	0x29, 0x03, 0x90, 0x96, 0x3c, 0xf2, 0x9c, 0x27, 0xc8, 0xc5, 0xea, 0x9a, 0x5b, 0x50, 0x52, 0x89,
+	0x10, 0x4a, 0x62, 0x03, 0x5b, 0x66, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xe3, 0x4c, 0x8f, 0xa4,
+	0x80, 0x01, 0x00, 0x00,
+}
