@@ -22,11 +22,3 @@ func Register(name string, messageType MessageType, messageConstructor func() Me
 	registeredMessages[registeredMessage] = true
 	nameToMessageConstructor[name] = messageConstructor
 }
-
-func newMessage(name string) (Message, error) {
-	messageConstructor, ok := nameToMessageConstructor[name]
-	if !ok {
-		return nil, fmt.Errorf("protolog: no Message registered for name: %s", name)
-	}
-	return messageConstructor(), nil
-}

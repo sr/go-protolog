@@ -264,12 +264,12 @@ func NewMultiPusher(pushers ...Pusher) Pusher {
 }
 
 // UnmarshalledContexts returns the context Messages marshalled on an Entry object.
-func (m *Entry) UnmarshalledContexts() ([]Message, error) {
+func (m *Entry) UnmarshalledContexts() ([]proto.Message, error) {
 	return entryMessagesToMessages(m.Context)
 }
 
 // UnmarshalledEvent returns the event Message marshalled on an Entry object.
-func (m *Entry) UnmarshalledEvent() (Message, error) {
+func (m *Entry) UnmarshalledEvent() (proto.Message, error) {
 	return entryMessageToMessage(m.Event)
 }
 
