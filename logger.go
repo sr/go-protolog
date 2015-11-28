@@ -224,9 +224,6 @@ func (l *logger) printWithError(level Level, event Message) error {
 	if !l.isLoggedLevel(level) {
 		return nil
 	}
-	//if err := checkNameRegistered(event.ProtologName()); err != nil {
-	//return err
-	//}
 	entryEvent, err := messageToEntryMessage(event)
 	if err != nil {
 		return err
