@@ -5,7 +5,6 @@
 	testdeps \
 	updatetestdeps \
 	build \
-	install \
 	lint \
 	vet \
 	errcheck \
@@ -31,9 +30,6 @@ updatetestdeps:
 
 build: deps
 	go build ./...
-
-install: deps
-	go install ./cmd/protoc-gen-protolog
 
 lint: testdeps
 	go get -v github.com/golang/lint/golint
