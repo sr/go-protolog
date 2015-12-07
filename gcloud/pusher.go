@@ -27,22 +27,15 @@ func newPusher(client *http.Client, projectId string, logName string) *pusher {
 }
 
 func (p *pusher) Push(entry *protolog.Entry) error {
-	payload, err := p.marshalEntry(entry)
+	logEntry, err := p.newLogEntry(entry)
 	if err != nil {
-		return nil
+		return err
 	}
 	request := p.service.Write(
 		p.projectId,
 		p.logName,
 		&logging.WriteLogEntriesRequest{
-			Entries: []*logging.LogEntry{
-				&logging.LogEntry{
-					TextPayload: payload,
-					Metadata: &logging.LogEntryMetadata{
-						ServiceName: customServiceName,
-					},
-				},
-			},
+			Entries: []*logging.LogEntry{logEntry},
 		},
 	)
 	_, err = request.Do()
@@ -53,7 +46,20 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
+func (p *pusher) newLogEntry(entry *protolog.Entry) (*logging.LogEntry, error) {
+	payload, err := p.marshalEntry(entry)
+	if err != nil {
+		return nil, err
+	}
+
+	return &logging.LogEntry{
+		TextPayload: payload,
+		Metadata: &logging.LogEntryMetadata{
+			ServiceName: customServiceName,
+		},
+	}, nil
+}
+
 func (p *pusher) marshalEntry(entry *protolog.Entry) (string, error) {
-	// TODO
 	return marshaler.MarshalToString(entry)
 }
