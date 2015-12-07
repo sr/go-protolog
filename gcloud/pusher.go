@@ -3,11 +3,14 @@ package gcloud
 import (
 	"net/http"
 
+	"github.com/golang/protobuf/jsonpb"
 	"go.pedge.io/protolog"
 	"google.golang.org/api/logging/v1beta3"
 )
 
 const customServiceName = "compute.googleapis.com"
+
+var marshaler = &jsonpb.Marshaler{}
 
 type pusher struct {
 	service   *logging.ProjectsLogsEntriesService
@@ -24,13 +27,17 @@ func newPusher(client *http.Client, projectId string, logName string) *pusher {
 }
 
 func (p *pusher) Push(entry *protolog.Entry) error {
+	payload, err := p.marshalEntry(entry)
+	if err != nil {
+		return nil
+	}
 	request := p.service.Write(
 		p.projectId,
 		p.logName,
 		&logging.WriteLogEntriesRequest{
 			Entries: []*logging.LogEntry{
 				&logging.LogEntry{
-					TextPayload: "boomtown from protolog",
+					TextPayload: payload,
 					Metadata: &logging.LogEntryMetadata{
 						ServiceName: customServiceName,
 					},
@@ -38,10 +45,15 @@ func (p *pusher) Push(entry *protolog.Entry) error {
 			},
 		},
 	)
-	_, err := request.Do()
+	_, err = request.Do()
 	return err
 }
 
 func (p *pusher) Flush() error {
 	return nil
+}
+
+func (p *pusher) marshalEntry(entry *protolog.Entry) (string, error) {
+	// TODO
+	return marshaler.MarshalToString(entry)
 }
