@@ -8,8 +8,12 @@ import (
 
 func NewPusher(
 	client *http.Client,
-	projectId string,
+	projectID string,
 	logName string,
 ) protolog.Pusher {
-	return newPusher(client, projectId, logName)
+	return newPusher(
+		client,
+		projectID,
+		logName,
+	)
 }

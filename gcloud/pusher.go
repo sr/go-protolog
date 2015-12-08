@@ -29,7 +29,7 @@ var (
 
 type pusher struct {
 	service   *logging.ProjectsLogsEntriesService
-	projectId string
+	projectID string
 	logName   string
 }
 
@@ -47,7 +47,7 @@ func (p *pusher) Push(entry *protolog.Entry) error {
 		return err
 	}
 	request := p.service.Write(
-		p.projectId,
+		p.projectID,
 		p.logName,
 		&logging.WriteLogEntriesRequest{
 			Entries: []*logging.LogEntry{logEntry},
