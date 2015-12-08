@@ -1,18 +1,17 @@
 package gcloud
 
 import (
-	"net/http"
-
 	"go.pedge.io/protolog"
+	"google.golang.org/api/logging/v1beta3"
 )
 
 func NewPusher(
-	client *http.Client,
+	service *logging.ProjectsLogsEntriesService,
 	projectID string,
 	logName string,
 ) protolog.Pusher {
 	return newPusher(
-		client,
+		service,
 		projectID,
 		logName,
 	)

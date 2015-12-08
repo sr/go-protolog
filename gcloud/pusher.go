@@ -1,7 +1,6 @@
 package gcloud
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -33,12 +32,12 @@ type pusher struct {
 	logName   string
 }
 
-func newPusher(client *http.Client, projectId string, logName string) *pusher {
-	service, err := logging.New(client)
-	if err != nil {
-		panic(err)
-	}
-	return &pusher{service.Projects.Logs.Entries, projectId, logName}
+func newPusher(
+	service *logging.ProjectsLogsEntriesService,
+	projectID string,
+	logName string,
+) *pusher {
+	return &pusher{service, projectID, logName}
 }
 
 func (p *pusher) Push(entry *protolog.Entry) error {
