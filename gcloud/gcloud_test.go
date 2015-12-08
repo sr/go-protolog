@@ -12,6 +12,8 @@ import (
 )
 
 func ExampleExamples() {
+	projectID, _ := os.LookupEnv("GCLOUD_PROJECT_ID")
+	logName := "protolog"
 	client, err := google.DefaultClient(
 		context.Background(),
 		logging.LoggingWriteScope,
@@ -20,8 +22,6 @@ func ExampleExamples() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	projectID, _ := os.LookupEnv("GCLOUD_PROJECT_ID")
-	logName := "protolog"
 	service, err := logging.New(client)
 	if err != nil {
 		log.Fatal(err)
