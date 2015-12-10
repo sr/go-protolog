@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
-	"go.pedge.io/google-protobuf"
 	"go.pedge.io/proto/time"
 	"go.pedge.io/protolog"
 	"google.golang.org/api/logging/v1beta3"
@@ -65,17 +64,16 @@ func newLogEntry(entry *protolog.Entry) (*logging.LogEntry, error) {
 	if err != nil {
 		return nil, err
 	}
+	metadata := &logging.LogEntryMetadata{
+		ServiceName: customServiceName,
+		Severity:    severityName[entry.Level],
+	}
+	if entry.Timestamp != nil {
+		metadata.Timestamp = prototime.TimestampToTime(entry.Timestamp).Format(time.RFC3339)
+	}
 	return &logging.LogEntry{
 		InsertId:    entry.Id,
 		TextPayload: payload,
-		Metadata: &logging.LogEntryMetadata{
-			ServiceName: customServiceName,
-			Severity:    severityName[entry.Level],
-			Timestamp:   newTimestamp(entry.Timestamp),
-		},
+		Metadata:    metadata,
 	}, nil
-}
-
-func newTimestamp(timestamp *google_protobuf.Timestamp) string {
-	return prototime.TimestampToTime(timestamp).Format(time.RFC3339)
 }
