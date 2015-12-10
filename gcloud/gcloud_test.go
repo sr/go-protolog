@@ -1,7 +1,6 @@
 package gcloud_test
 
 import (
-	"log"
 	"os"
 
 	"go.pedge.io/protolog"
@@ -11,20 +10,19 @@ import (
 	"google.golang.org/api/logging/v1beta3"
 )
 
-func ExampleExamples() {
+func Example() {
 	projectID, _ := os.LookupEnv("GCLOUD_PROJECT_ID")
 	logName := "protolog"
 	client, err := google.DefaultClient(
 		context.Background(),
 		logging.LoggingWriteScope,
-		logging.CloudPlatformScope,
 	)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	service, err := logging.New(client)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	logger := protolog.NewStandardLogger(
 		gcloud.NewPusher(
