@@ -41,7 +41,7 @@ func newPusher(
 }
 
 func (p *pusher) Push(entry *protolog.Entry) error {
-	logEntry, err := p.newLogEntry(entry)
+	logEntry, err := newLogEntry(entry)
 	if err != nil {
 		return err
 	}
@@ -59,8 +59,8 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
-func (p *pusher) newLogEntry(entry *protolog.Entry) (*logging.LogEntry, error) {
-	payload, err := p.marshalEntry(entry)
+func newLogEntry(entry *protolog.Entry) (*logging.LogEntry, error) {
+	payload, err := marshaler.MarshalToString(entry)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +80,4 @@ func newTimestamp(timestamp *google_protobuf.Timestamp) string {
 		timestamp.Seconds,
 		int64(timestamp.Nanos),
 	).Format(time.RFC3339)
-}
-
-func (p *pusher) marshalEntry(entry *protolog.Entry) (string, error) {
-	return marshaler.MarshalToString(entry)
 }
