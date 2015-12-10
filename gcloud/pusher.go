@@ -37,7 +37,11 @@ func newPusher(
 	projectID string,
 	logName string,
 ) *pusher {
-	return &pusher{service, projectID, logName}
+	return &pusher{
+		service,
+		projectID,
+		logName,
+	}
 }
 
 func (p *pusher) Push(entry *protolog.Entry) error {
