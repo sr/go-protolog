@@ -8,6 +8,9 @@ import (
 )
 
 func messageToEntryMessage(message proto.Message) (*Entry_Message, error) {
+	if message == nil {
+		return nil, nil
+	}
 	value, err := proto.Marshal(message)
 	if err != nil {
 		return nil, err
@@ -19,6 +22,9 @@ func messageToEntryMessage(message proto.Message) (*Entry_Message, error) {
 }
 
 func entryMessageToMessage(entryMessage *Entry_Message) (proto.Message, error) {
+	if entryMessage == nil {
+		return nil, nil
+	}
 	message, err := newMessage(entryMessage.Name)
 	if err != nil {
 		return nil, err
@@ -30,6 +36,9 @@ func entryMessageToMessage(entryMessage *Entry_Message) (proto.Message, error) {
 }
 
 func messagesToEntryMessages(messages []proto.Message) ([]*Entry_Message, error) {
+	if messages == nil {
+		return nil, nil
+	}
 	entryMessages := make([]*Entry_Message, len(messages))
 	for i, message := range messages {
 		entryMessage, err := messageToEntryMessage(message)
@@ -42,6 +51,9 @@ func messagesToEntryMessages(messages []proto.Message) ([]*Entry_Message, error)
 }
 
 func entryMessagesToMessages(entryMessages []*Entry_Message) ([]proto.Message, error) {
+	if entryMessages == nil {
+		return nil, nil
+	}
 	messages := make([]proto.Message, len(entryMessages))
 	for i, entryMessage := range entryMessages {
 		message, err := entryMessageToMessage(entryMessage)

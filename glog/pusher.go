@@ -19,16 +19,16 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
-func (p *pusher) Push(entry *protolog.Entry) error {
-	if entry.Level == protolog.Level_LEVEL_DEBUG && !p.logDebug {
+func (p *pusher) Push(goEntry *protolog.GoEntry) error {
+	if goEntry.Level == protolog.Level_LEVEL_DEBUG && !p.logDebug {
 		return nil
 	}
-	dataBytes, err := p.marshaller.Marshal(entry)
+	dataBytes, err := p.marshaller.Marshal(goEntry)
 	if err != nil {
 		return err
 	}
 	data := string(dataBytes)
-	switch entry.Level {
+	switch goEntry.Level {
 	case protolog.Level_LEVEL_DEBUG, protolog.Level_LEVEL_INFO:
 		glog.Infoln(data)
 	case protolog.Level_LEVEL_WARN:

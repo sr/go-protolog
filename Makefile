@@ -1,19 +1,3 @@
-.PHONY: \
-	all \
-	deps \
-	updatedeps \
-	testdeps \
-	updatetestdeps \
-	build \
-	lint \
-	vet \
-	errcheck \
-	pretest \
-	test \
-	bench \
-	clean \
-	proto
-
 all: test
 
 deps:
@@ -64,3 +48,27 @@ proto:
 	go get -v go.pedge.io/pkg/cmd/strip-package-comments
 	protoeasy --go --grpc --grpc-gateway --go-import-path go.pedge.io/protolog .
 	find . -name *\.pb\*\.go | xargs strip-package-comments
+
+docker-build:
+	docker build -t pedge/protolog .
+
+docker-test: docker-build
+	docker run pedge/protolog make test
+
+.PHONY: \
+	all \
+	deps \
+	updatedeps \
+	testdeps \
+	updatetestdeps \
+	build \
+	lint \
+	vet \
+	errcheck \
+	pretest \
+	test \
+	bench \
+	clean \
+	proto \
+	docker-build \
+	docker-test

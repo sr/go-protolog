@@ -10,10 +10,10 @@ func newMultiPusher(pushers []Pusher) *multiPusher {
 	return &multiPusher{pushers}
 }
 
-func (m *multiPusher) Push(entry *Entry) error {
+func (m *multiPusher) Push(goEntry *GoEntry) error {
 	var retErr error
 	for _, pusher := range m.pushers {
-		if err := pusher.Push(entry); err != nil {
+		if err := pusher.Push(goEntry); err != nil {
 			retErr = err
 		}
 	}

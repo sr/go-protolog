@@ -12,7 +12,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"go.pedge.io/proto/time"
 	"go.pedge.io/protolog"
 )
 
@@ -51,8 +50,8 @@ func newPusher(options PusherOptions) *pusher {
 	return &pusher{logger, &sync.Mutex{}, options}
 }
 
-func (p *pusher) Push(entry *protolog.Entry) error {
-	logrusEntry, err := p.getLogrusEntry(entry)
+func (p *pusher) Push(goEntry *protolog.GoEntry) error {
+	logrusEntry, err := p.getLogrusEntry(goEntry)
 	if err != nil {
 		return err
 	}
@@ -66,35 +65,26 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
-func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
-	logrusLevel, ok := levelToLogrusLevel[entry.Level]
+func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error) {
+	logrusLevel, ok := levelToLogrusLevel[goEntry.Level]
 	if !ok {
-		return nil, fmt.Errorf("protolog: no logrus Level for %v", entry.Level)
+		return nil, fmt.Errorf("protolog: no logrus Level for %v", goEntry.Level)
 	}
 	logrusEntry := logrus.NewEntry(p.logger)
-	logrusEntry.Time = prototime.TimestampToTime(entry.Timestamp)
+	logrusEntry.Time = goEntry.Time
 	logrusEntry.Level = logrusLevel
 
 	if p.options.EnableID {
-		logrusEntry.Data["_id"] = entry.Id
+		logrusEntry.Data["_id"] = goEntry.ID
 	}
 	if !p.options.DisableContexts {
-		contexts, err := entry.UnmarshalledContexts()
-		if err != nil {
-			return nil, err
-		}
-		for _, context := range contexts {
+		for _, context := range goEntry.Contexts {
 			if context == nil {
 				continue
 			}
-			name := proto.MessageName(context)
-			switch name {
-			case "protolog.Fields":
-				protologFields, ok := context.(*protolog.Fields)
-				if !ok {
-					return nil, fmt.Errorf("protolog: expected *protolog.Fields, got %T", context)
-				}
-				for key, value := range protologFields.Value {
+			switch context.(type) {
+			case *protolog.Fields:
+				for key, value := range context.(*protolog.Fields).Value {
 					if value != "" {
 						logrusEntry.Data[key] = value
 					}
@@ -106,28 +96,15 @@ func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 			}
 		}
 	}
-	event, err := entry.UnmarshalledEvent()
-	if err != nil {
-		return nil, err
-	}
-	if event != nil {
-		name := proto.MessageName(event)
-		switch name {
-		case "protolog.Event":
-			protologEvent, ok := event.(*protolog.Event)
-			if !ok {
-				return nil, fmt.Errorf("protolog: expected *protolog.Event, got %T", event)
-			}
-			logrusEntry.Message = trimRightSpace(protologEvent.Message)
-		case "protolog.WriterOutput":
-			writerOutput, ok := event.(*protolog.WriterOutput)
-			if !ok {
-				return nil, fmt.Errorf("protolog: expected *protolog.WriterOutput, got %T", event)
-			}
-			logrusEntry.Message = trimRightSpace(string(writerOutput.Value))
+	if goEntry.Event != nil {
+		switch goEntry.Event.(type) {
+		case *protolog.Event:
+			logrusEntry.Message = trimRightSpace(goEntry.Event.(*protolog.Event).Message)
+		case *protolog.WriterOutput:
+			logrusEntry.Message = trimRightSpace(string(goEntry.Event.(*protolog.WriterOutput).Value))
 		default:
-			logrusEntry.Data["_event"] = name
-			if err := addProtoMessage(logrusEntry, event); err != nil {
+			logrusEntry.Data["_event"] = proto.MessageName(goEntry.Event)
+			if err := addProtoMessage(logrusEntry, goEntry.Event); err != nil {
 				return nil, err
 			}
 		}

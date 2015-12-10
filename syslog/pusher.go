@@ -24,13 +24,13 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
-func (p *pusher) Push(entry *protolog.Entry) error {
-	dataBytes, err := p.marshaller.Marshal(entry)
+func (p *pusher) Push(goEntry *protolog.GoEntry) error {
+	dataBytes, err := p.marshaller.Marshal(goEntry)
 	if err != nil {
 		return err
 	}
 	data := string(dataBytes)
-	switch entry.Level {
+	switch goEntry.Level {
 	case protolog.Level_LEVEL_DEBUG:
 		return p.writer.Debug(data)
 	case protolog.Level_LEVEL_INFO:
@@ -44,6 +44,6 @@ func (p *pusher) Push(entry *protolog.Entry) error {
 	case protolog.Level_LEVEL_PANIC:
 		return p.writer.Alert(data)
 	default:
-		return fmt.Errorf("protolog: unknown level: %v", entry.Level)
+		return fmt.Errorf("protolog: unknown level: %v", goEntry.Level)
 	}
 }

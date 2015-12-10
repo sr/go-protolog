@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"go.pedge.io/proto/time"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -111,10 +113,38 @@ type Logger interface {
 	Println(args ...interface{})
 }
 
+// GoEntry is the go equivalent of an Entry.
+type GoEntry struct {
+	ID       string          `json:"id,omitempty"`
+	Level    Level           `json:"level,omitempty"`
+	Time     time.Time       `json:"time,omitempty"`
+	Contexts []proto.Message `json:"contexts,omitempty"`
+	Event    proto.Message   `json:"event,omitempty"`
+}
+
+// ToEntry converts the GoEntry to an Entry.
+func (g *GoEntry) ToEntry() (*Entry, error) {
+	contexts, err := messagesToEntryMessages(g.Contexts)
+	if err != nil {
+		return nil, err
+	}
+	event, err := messageToEntryMessage(g.Event)
+	if err != nil {
+		return nil, err
+	}
+	return &Entry{
+		Id:        g.ID,
+		Level:     g.Level,
+		Timestamp: prototime.TimeToTimestamp(g.Time),
+		Context:   contexts,
+		Event:     event,
+	}, nil
+}
+
 // Pusher is the interface used to push Entry objects to a persistent store.
 type Pusher interface {
 	Flusher
-	Push(entry *Entry) error
+	Push(goEntry *GoEntry) error
 }
 
 // IDAllocator allocates unique IDs for Entry objects. The default
@@ -160,7 +190,7 @@ func NewStandardLogger(pusher Pusher) Logger {
 
 // Marshaller marshals Entry objects to be written.
 type Marshaller interface {
-	Marshal(entry *Entry) ([]byte, error)
+	Marshal(goEntry *GoEntry) ([]byte, error)
 }
 
 // WritePusherOptions defines options for constructing a new write Pusher.
@@ -187,13 +217,13 @@ func NewStandardWritePusher(writeFlusher WriteFlusher) Pusher {
 
 // Puller pulls Entry objects from a persistent store.
 type Puller interface {
-	Pull() (*Entry, error)
+	Pull() (*GoEntry, error)
 }
 
 // Unmarshaller unmarshalls a marshalled Entry object. At the end
 // of a stream, Unmarshaller will return io.EOF.
 type Unmarshaller interface {
-	Unmarshal(reader io.Reader, entry *Entry) error
+	Unmarshal(reader io.Reader, goEntry *GoEntry) error
 }
 
 // ReadPullerOptions defines options for a read Puller.
@@ -265,6 +295,25 @@ func (m *Entry) UnmarshalledContexts() ([]proto.Message, error) {
 // UnmarshalledEvent returns the event Message marshalled on an Entry object.
 func (m *Entry) UnmarshalledEvent() (proto.Message, error) {
 	return entryMessageToMessage(m.Event)
+}
+
+// ToGoEntry converts to Entry to a GoEntry.
+func (m *Entry) ToGoEntry() (*GoEntry, error) {
+	contexts, err := m.UnmarshalledContexts()
+	if err != nil {
+		return nil, err
+	}
+	event, err := m.UnmarshalledEvent()
+	if err != nil {
+		return nil, err
+	}
+	return &GoEntry{
+		ID:       m.Id,
+		Level:    m.Level,
+		Time:     prototime.TimestampToTime(m.Timestamp),
+		Contexts: contexts,
+		Event:    event,
+	}, nil
 }
 
 // Flush calls Flush on the global Logger.

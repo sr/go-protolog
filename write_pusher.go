@@ -33,8 +33,8 @@ func (w *writePusher) Flush() error {
 	return w.writeFlusher.Flush()
 }
 
-func (w *writePusher) Push(entry *Entry) error {
-	data, err := w.marshaller.Marshal(entry)
+func (w *writePusher) Push(goEntry *GoEntry) error {
+	data, err := w.marshaller.Marshal(goEntry)
 	if err != nil {
 		return err
 	}

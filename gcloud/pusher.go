@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
-	"go.pedge.io/proto/time"
 	"go.pedge.io/protolog"
 	"google.golang.org/api/logging/v1beta3"
 )
@@ -44,8 +43,8 @@ func newPusher(
 	}
 }
 
-func (p *pusher) Push(entry *protolog.Entry) error {
-	logEntry, err := newLogEntry(entry)
+func (p *pusher) Push(goEntry *protolog.GoEntry) error {
+	logEntry, err := newLogEntry(goEntry)
 	if err != nil {
 		return err
 	}
@@ -63,21 +62,22 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
-func newLogEntry(entry *protolog.Entry) (*logging.LogEntry, error) {
+func newLogEntry(goEntry *protolog.GoEntry) (*logging.LogEntry, error) {
+	entry, err := goEntry.ToEntry()
+	if err != nil {
+		return nil, err
+	}
 	payload, err := marshaler.MarshalToString(entry)
 	if err != nil {
 		return nil, err
 	}
-	metadata := &logging.LogEntryMetadata{
-		ServiceName: customServiceName,
-		Severity:    severityName[entry.Level],
-	}
-	if entry.Timestamp != nil {
-		metadata.Timestamp = prototime.TimestampToTime(entry.Timestamp).Format(time.RFC3339)
-	}
 	return &logging.LogEntry{
-		InsertId:    entry.Id,
+		InsertId:    goEntry.ID,
 		TextPayload: payload,
-		Metadata:    metadata,
+		Metadata: &logging.LogEntryMetadata{
+			ServiceName: customServiceName,
+			Severity:    severityName[goEntry.Level],
+			Timestamp:   goEntry.Time.Format(time.RFC3339),
+		},
 	}, nil
 }
