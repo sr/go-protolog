@@ -64,7 +64,6 @@ func (p *pusher) newLogEntry(entry *protolog.Entry) (*logging.LogEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &logging.LogEntry{
 		InsertId:    entry.Id,
 		TextPayload: payload,
