@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/logging/v1beta3"
 )
 
-func Example() {
+func Example() error {
 	projectID, _ := os.LookupEnv("GCLOUD_PROJECT_ID")
 	logName := "protolog"
 	client, err := google.DefaultClient(
@@ -18,11 +18,11 @@ func Example() {
 		logging.LoggingWriteScope,
 	)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	service, err := logging.New(client)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	logger := protolog.NewStandardLogger(
 		gcloud.NewPusher(
@@ -32,4 +32,5 @@ func Example() {
 		),
 	)
 	logger.Infoln("Hello from protolog!")
+	return nil
 }
