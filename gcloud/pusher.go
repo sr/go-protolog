@@ -45,14 +45,13 @@ func (p *pusher) Push(entry *protolog.Entry) error {
 	if err != nil {
 		return err
 	}
-	request := p.service.Write(
+	_, err = p.service.Write(
 		p.projectID,
 		p.logName,
 		&logging.WriteLogEntriesRequest{
 			Entries: []*logging.LogEntry{logEntry},
 		},
-	)
-	_, err = request.Do()
+	).Do()
 	return err
 }
 
