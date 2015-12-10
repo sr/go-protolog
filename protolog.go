@@ -178,7 +178,7 @@ func NewLogger(pusher Pusher, options LoggerOptions) Logger {
 	return newLogger(pusher, options)
 }
 
-// NewStandardLogger constructs a new Logger that logs using a text Marshaller.
+// NewStandardLogger constructs a new Logger that logs using a Pusher.
 func NewStandardLogger(pusher Pusher) Logger {
 	return NewLogger(
 		pusher,
