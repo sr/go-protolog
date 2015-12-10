@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"go.pedge.io/google-protobuf"
+	"go.pedge.io/proto/time"
 	"go.pedge.io/protolog"
 	"google.golang.org/api/logging/v1beta3"
 )
@@ -76,8 +77,5 @@ func newLogEntry(entry *protolog.Entry) (*logging.LogEntry, error) {
 }
 
 func newTimestamp(timestamp *google_protobuf.Timestamp) string {
-	return time.Unix(
-		timestamp.Seconds,
-		int64(timestamp.Nanos),
-	).Format(time.RFC3339)
+	return prototime.TimestampToTime(timestamp).Format(time.RFC3339)
 }
