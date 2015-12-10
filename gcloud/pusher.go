@@ -63,17 +63,9 @@ func (p *pusher) Flush() error {
 }
 
 func newLogEntry(goEntry *protolog.GoEntry) (*logging.LogEntry, error) {
-	entry, err := goEntry.ToEntry()
-	if err != nil {
-		return nil, err
-	}
-	payload, err := marshaler.MarshalToString(entry)
-	if err != nil {
-		return nil, err
-	}
 	return &logging.LogEntry{
-		InsertId:    goEntry.ID,
-		TextPayload: payload,
+		InsertId:      goEntry.ID,
+		StructPayload: goEntry,
 		Metadata: &logging.LogEntryMetadata{
 			ServiceName: customServiceName,
 			Severity:    severityName[goEntry.Level],
