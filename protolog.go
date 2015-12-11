@@ -33,9 +33,9 @@ var (
 	DefaultTextMarshaller = NewTextMarshaller(MarshallerOptions{})
 
 	// DiscardLogger is a Logger that discards all logs.
-	DiscardLogger = NewStandardLogger(NewStandardWritePusher(NewWriterFlusher(ioutil.Discard)))
+	DiscardLogger = NewLogger(NewDefaultTextWritePusher(NewWriterFlusher(ioutil.Discard)), LoggerOptions{})
 
-	globalLogger            = NewStandardLogger(NewStandardWritePusher(NewFileFlusher(os.Stderr)))
+	globalLogger            = NewLogger(NewDefaultTextWritePusher(NewFileFlusher(os.Stderr)), LoggerOptions{})
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
 )
@@ -194,16 +194,6 @@ func NewLogger(pusher Pusher, options LoggerOptions) Logger {
 	return newLogger(pusher, options)
 }
 
-// NewStandardLogger constructs a new Logger that logs using a Pusher.
-func NewStandardLogger(pusher Pusher) Logger {
-	return NewLogger(
-		pusher,
-		LoggerOptions{},
-	).AtLevel(
-		Level_LEVEL_INFO,
-	)
-}
-
 // Marshaller marshals Entry objects to be written.
 type Marshaller interface {
 	Marshal(goEntry *GoEntry) ([]byte, error)
@@ -220,8 +210,8 @@ func NewWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) Pushe
 	return newWritePusher(writeFlusher, options)
 }
 
-// NewStandardWritePusher constructs a new Pusher using a text Marshaller.
-func NewStandardWritePusher(writeFlusher WriteFlusher) Pusher {
+// NewDefaultTextWritePusher constructs a new Pusher using the DefaultTextMarshaller and newlines.
+func NewDefaultTextWritePusher(writeFlusher WriteFlusher) Pusher {
 	return NewWritePusher(
 		writeFlusher,
 		WritePusherOptions{

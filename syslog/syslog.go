@@ -28,8 +28,8 @@ func NewPusher(writer *syslog.Writer, options PusherOptions) protolog.Pusher {
 	return newPusher(writer, options)
 }
 
-// NewStandardPusher creates a new protolog.Pusher that logs using syslog and the default text Marshaller.
-func NewStandardPusher(writer *syslog.Writer) protolog.Pusher {
+// NewDefaultTextPusher creates a new protolog.Pusher that logs using syslog and the default text Marshaller.
+func NewDefaultTextPusher(writer *syslog.Writer) protolog.Pusher {
 	return newPusher(
 		writer,
 		PusherOptions{

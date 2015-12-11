@@ -24,12 +24,13 @@ func Example() error {
 	if err != nil {
 		return err
 	}
-	logger := protolog.NewStandardLogger(
+	logger := protolog.NewLogger(
 		gcloud.NewPusher(
 			service.Projects.Logs.Entries,
 			projectID,
 			logName,
 		),
+		protolog.LoggerOptions{},
 	)
 	logger.Infoln("Hello from protolog!")
 	return nil
