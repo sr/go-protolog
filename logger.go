@@ -32,13 +32,13 @@ func newLogger(pusher Pusher, options LoggerOptions) *logger {
 		},
 	}
 	if logger.idAllocator == nil {
-		logger.idAllocator = defaultIDAllocator
+		logger.idAllocator = DefaultIDAllocator
 	}
 	if logger.timer == nil {
-		logger.timer = defaultTimer
+		logger.timer = DefaultTimer
 	}
 	if logger.errorHandler == nil {
-		logger.errorHandler = defaultErrorHandler
+		logger.errorHandler = DefaultErrorHandler
 	}
 	return logger
 }

@@ -12,12 +12,6 @@ import (
 )
 
 var (
-	defaultIDAllocator  = &idAllocator{instanceID, 0}
-	defaultTimer        = &timer{}
-	defaultErrorHandler = &errorHandler{}
-	defaultMarshaller   = &marshaller{}
-	defaultUnmarshaller = &unmarshaller{}
-
 	// go.uuid calls rand.Read, which gets down to a mutex
 	// we just need ids to be unique across logging processes
 	// so we use a base ID and then add an atomic int

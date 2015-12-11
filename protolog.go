@@ -17,6 +17,19 @@ import (
 )
 
 var (
+	// DefaultIDAllocator is the default IDAllocator.
+	DefaultIDAllocator = &idAllocator{instanceID, 0}
+	// DefaultTimer is the default Timer.
+	DefaultTimer = &timer{}
+	// DefaultErrorHandler is the default ErrorHandler.
+	DefaultErrorHandler = &errorHandler{}
+	// DefaultMarshaller is the default Marshaller.
+	DefaultMarshaller = &marshaller{}
+	// DefaultUnmarshaller is the default Unmarshaller.
+	DefaultUnmarshaller = &unmarshaller{}
+	// DefaultTextMarshaller is the default text Marshaller.
+	DefaultTextMarshaller = NewTextMarshaller(MarshallerOptions{})
+
 	// DiscardLogger is a Logger that discards all logs.
 	DiscardLogger = NewStandardLogger(NewStandardWritePusher(NewWriterFlusher(ioutil.Discard)))
 
@@ -204,12 +217,12 @@ func NewWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) Pushe
 	return newWritePusher(writeFlusher, options)
 }
 
-// NewStandardWritePusher constructs a new Pusher using the default options.
+// NewStandardWritePusher constructs a new Pusher using a text Marshaller.
 func NewStandardWritePusher(writeFlusher WriteFlusher) Pusher {
 	return NewWritePusher(
 		writeFlusher,
 		WritePusherOptions{
-			Marshaller: NewTextMarshaller(MarshallerOptions{}),
+			Marshaller: DefaultTextMarshaller,
 			Newline:    true,
 		},
 	)

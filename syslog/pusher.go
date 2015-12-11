@@ -15,7 +15,7 @@ type pusher struct {
 func newPusher(writer *syslog.Writer, options PusherOptions) *pusher {
 	marshaller := options.Marshaller
 	if marshaller == nil {
-		marshaller = globalMarshaller
+		marshaller = protolog.DefaultMarshaller
 	}
 	return &pusher{writer, marshaller}
 }

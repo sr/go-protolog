@@ -24,7 +24,7 @@ func newWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) *writ
 		&sync.Mutex{},
 	}
 	if writePusher.marshaller == nil {
-		writePusher.marshaller = defaultMarshaller
+		writePusher.marshaller = DefaultMarshaller
 	}
 	return writePusher
 }
