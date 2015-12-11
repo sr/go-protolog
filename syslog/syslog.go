@@ -12,8 +12,8 @@ var (
 	// DefaultTextMarshaller is the default text Marshaller for syslog.
 	DefaultTextMarshaller = protolog.NewTextMarshaller(
 		protolog.MarshallerOptions{
-			DisableTimestamp: true,
-			DisableLevel:     true,
+			DisableTime:  true,
+			DisableLevel: true,
 		},
 	)
 )

@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	jsonPBMarshaller = &jsonpb.Marshaler{}
+	jsonpbMarshaller = &jsonpb.Marshaler{}
 )
 
 type textMarshaller struct {
@@ -24,16 +24,20 @@ func newTextMarshaller(options MarshallerOptions) *textMarshaller {
 }
 
 func (t *textMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
+	return textMarshalGoEntry(goEntry, t.options)
+}
+
+func textMarshalGoEntry(goEntry *GoEntry, options MarshallerOptions) ([]byte, error) {
 	buffer := bytes.NewBuffer(nil)
 	if goEntry.ID != "" {
 		_, _ = buffer.WriteString(goEntry.ID)
 		_ = buffer.WriteByte(' ')
 	}
-	if !t.options.DisableTimestamp {
+	if !options.DisableTime {
 		_, _ = buffer.WriteString(goEntry.Time.Format(time.RFC3339))
 		_ = buffer.WriteByte(' ')
 	}
-	if !t.options.DisableLevel {
+	if !options.DisableLevel {
 		levelString := strings.Replace(goEntry.Level.String(), "LEVEL_", "", -1)
 		_, _ = buffer.WriteString(levelString)
 		if len(levelString) == 4 {
@@ -49,12 +53,12 @@ func (t *textMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
 		case *WriterOutput:
 			_, _ = buffer.Write(trimRightSpaceBytes(goEntry.Event.(*WriterOutput).Value))
 		default:
-			if err := t.marshalMessage(buffer, goEntry.Event); err != nil {
+			if err := textMarshalMessage(buffer, goEntry.Event); err != nil {
 				return nil, err
 			}
 		}
 	}
-	if goEntry.Contexts != nil && len(goEntry.Contexts) > 0 && !t.options.DisableContexts {
+	if goEntry.Contexts != nil && len(goEntry.Contexts) > 0 && !options.DisableContexts {
 		_, _ = buffer.WriteString(" contexts=[")
 		lenContexts := len(goEntry.Contexts)
 		for i, context := range goEntry.Contexts {
@@ -66,7 +70,7 @@ func (t *textMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
 				}
 				_, _ = buffer.Write(data)
 			default:
-				if err := t.marshalMessage(buffer, context); err != nil {
+				if err := textMarshalMessage(buffer, context); err != nil {
 					return nil, err
 				}
 			}
@@ -79,8 +83,8 @@ func (t *textMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
 	return trimRightSpaceBytes(buffer.Bytes()), nil
 }
 
-func (t *textMarshaller) marshalMessage(buffer *bytes.Buffer, message proto.Message) error {
-	s, err := jsonPBMarshaller.MarshalToString(message)
+func textMarshalMessage(buffer *bytes.Buffer, message proto.Message) error {
+	s, err := jsonpbMarshaller.MarshalToString(message)
 	if err != nil {
 		return err
 	}

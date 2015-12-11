@@ -73,7 +73,7 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 		protolog.WritePusherOptions{
 			Marshaller: protolog.NewTextMarshaller(
 				protolog.MarshallerOptions{
-					DisableTimestamp: true,
+					DisableTime: true,
 				},
 			),
 			Newline: true,

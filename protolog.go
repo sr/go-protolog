@@ -35,6 +35,8 @@ var (
 	// DiscardLogger is a Logger that discards all logs.
 	DiscardLogger = NewLogger(NewDefaultTextWritePusher(NewWriterFlusher(ioutil.Discard)), LoggerOptions{})
 
+	defaultMarshallerOptions = MarshallerOptions{}
+
 	globalLogger            = NewLogger(NewDefaultTextWritePusher(NewFileFlusher(os.Stderr)), LoggerOptions{})
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
@@ -158,6 +160,23 @@ func (g *GoEntry) ToEntry() (*Entry, error) {
 	}, nil
 }
 
+// String defaults a string representation of the GoEntry.
+func (g *GoEntry) String() string {
+	return g.FullString(defaultMarshallerOptions)
+}
+
+// FullString returns a string representation of the GoEntry using the given MarshallerOptions.
+func (g *GoEntry) FullString(options MarshallerOptions) string {
+	if g == nil {
+		return ""
+	}
+	data, err := textMarshalGoEntry(g, options)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
 // Pusher is the interface used to push Entry objects to a persistent store.
 type Pusher interface {
 	Flusher
@@ -248,8 +267,8 @@ func NewReadPuller(reader io.Reader, options ReadPullerOptions) Puller {
 
 // MarshallerOptions provides options for creating Marshallers.
 type MarshallerOptions struct {
-	// DisableTimestamp will suppress the printing of Entry Timestamps.
-	DisableTimestamp bool
+	// DisableTime will suppress the printing of Entry Timestamps.
+	DisableTime bool
 	// DisableLevel will suppress the printing of Entry Levels.
 	DisableLevel bool
 	// DisableContexts will suppress the printing of Entry contexts.
