@@ -5,6 +5,18 @@ import (
 	"go.pedge.io/protolog"
 )
 
+var (
+	levelToLogFunc = map[protolog.Level]func(...interface{}){
+		protolog.Level_LEVEL_NONE:  glog.Infoln,
+		protolog.Level_LEVEL_DEBUG: glog.Infoln,
+		protolog.Level_LEVEL_INFO:  glog.Infoln,
+		protolog.Level_LEVEL_WARN:  glog.Warningln,
+		protolog.Level_LEVEL_ERROR: glog.Errorln,
+		protolog.Level_LEVEL_FATAL: glog.Errorln,
+		protolog.Level_LEVEL_PANIC: glog.Errorln,
+	}
+)
+
 type pusher struct {
 	marshaller protolog.Marshaller
 }
@@ -23,26 +35,10 @@ func (p *pusher) Flush() error {
 }
 
 func (p *pusher) Push(goEntry *protolog.GoEntry) error {
-	dataBytes, err := p.marshaller.Marshal(goEntry)
+	data, err := p.marshaller.Marshal(goEntry)
 	if err != nil {
 		return err
 	}
-	data := string(dataBytes)
-	switch goEntry.Level {
-	case protolog.Level_LEVEL_DEBUG, protolog.Level_LEVEL_INFO:
-		glog.Infoln(data)
-	case protolog.Level_LEVEL_WARN:
-		glog.Warningln(data)
-	case protolog.Level_LEVEL_ERROR:
-		glog.Errorln(data)
-	case protolog.Level_LEVEL_FATAL:
-		// cannot use fatal since this will exit before logging completes,
-		// which is particularly important for a multi-pusher
-		glog.Errorln(data)
-	case protolog.Level_LEVEL_PANIC:
-		// cannot use panic since this will panic before logging completes,
-		// which is particularly important for a multi-pusher
-		glog.Errorln(data)
-	}
+	levelToLogFunc[goEntry.Level](string(data))
 	return nil
 }

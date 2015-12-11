@@ -1,10 +1,21 @@
 package syslog
 
 import (
-	"fmt"
 	"log/syslog"
 
 	"go.pedge.io/protolog"
+)
+
+var (
+	levelToLogFunc = map[protolog.Level]func(*syslog.Writer, string) error{
+		protolog.Level_LEVEL_NONE:  (*syslog.Writer).Info,
+		protolog.Level_LEVEL_DEBUG: (*syslog.Writer).Debug,
+		protolog.Level_LEVEL_INFO:  (*syslog.Writer).Info,
+		protolog.Level_LEVEL_WARN:  (*syslog.Writer).Warning,
+		protolog.Level_LEVEL_ERROR: (*syslog.Writer).Err,
+		protolog.Level_LEVEL_FATAL: (*syslog.Writer).Crit,
+		protolog.Level_LEVEL_PANIC: (*syslog.Writer).Alert,
+	}
 )
 
 type pusher struct {
@@ -25,25 +36,9 @@ func (p *pusher) Flush() error {
 }
 
 func (p *pusher) Push(goEntry *protolog.GoEntry) error {
-	dataBytes, err := p.marshaller.Marshal(goEntry)
+	data, err := p.marshaller.Marshal(goEntry)
 	if err != nil {
 		return err
 	}
-	data := string(dataBytes)
-	switch goEntry.Level {
-	case protolog.Level_LEVEL_DEBUG:
-		return p.writer.Debug(data)
-	case protolog.Level_LEVEL_INFO:
-		return p.writer.Info(data)
-	case protolog.Level_LEVEL_WARN:
-		return p.writer.Warning(data)
-	case protolog.Level_LEVEL_ERROR:
-		return p.writer.Err(data)
-	case protolog.Level_LEVEL_FATAL:
-		return p.writer.Crit(data)
-	case protolog.Level_LEVEL_PANIC:
-		return p.writer.Alert(data)
-	default:
-		return fmt.Errorf("protolog: unknown level: %v", goEntry.Level)
-	}
+	return levelToLogFunc[goEntry.Level](p.writer, string(data))
 }

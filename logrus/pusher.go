@@ -3,7 +3,6 @@ package logrus
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -17,6 +16,7 @@ import (
 
 var (
 	levelToLogrusLevel = map[protolog.Level]logrus.Level{
+		protolog.Level_LEVEL_NONE:  logrus.InfoLevel,
 		protolog.Level_LEVEL_DEBUG: logrus.DebugLevel,
 		protolog.Level_LEVEL_INFO:  logrus.InfoLevel,
 		protolog.Level_LEVEL_WARN:  logrus.WarnLevel,
@@ -66,13 +66,9 @@ func (p *pusher) Flush() error {
 }
 
 func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error) {
-	logrusLevel, ok := levelToLogrusLevel[goEntry.Level]
-	if !ok {
-		return nil, fmt.Errorf("protolog: no logrus Level for %v", goEntry.Level)
-	}
 	logrusEntry := logrus.NewEntry(p.logger)
 	logrusEntry.Time = goEntry.Time
-	logrusEntry.Level = logrusLevel
+	logrusEntry.Level = levelToLogrusLevel[goEntry.Level]
 
 	if goEntry.ID != "" {
 		logrusEntry.Data["_id"] = goEntry.ID

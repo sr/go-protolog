@@ -58,7 +58,7 @@ func textMarshalGoEntry(goEntry *GoEntry, options MarshallerOptions) ([]byte, er
 			}
 		}
 	}
-	if goEntry.Contexts != nil && len(goEntry.Contexts) > 0 && !options.DisableContexts {
+	if len(goEntry.Contexts) > 0 && !options.DisableContexts {
 		_, _ = buffer.WriteString(" contexts=[")
 		lenContexts := len(goEntry.Contexts)
 		for i, context := range goEntry.Contexts {
@@ -84,14 +84,12 @@ func textMarshalGoEntry(goEntry *GoEntry, options MarshallerOptions) ([]byte, er
 }
 
 func textMarshalMessage(buffer *bytes.Buffer, message proto.Message) error {
-	s, err := jsonpbMarshaller.MarshalToString(message)
-	if err != nil {
-		return err
+	if message == nil {
+		return nil
 	}
 	_, _ = buffer.WriteString(messageName(message))
 	_ = buffer.WriteByte(' ')
-	_, _ = buffer.WriteString(s)
-	return nil
+	return jsonpbMarshaller.Marshal(buffer, message)
 }
 
 func trimRightSpaceBytes(b []byte) []byte {
