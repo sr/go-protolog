@@ -386,13 +386,18 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 	require.NoError(b, err)
 	file, err := os.Create(filepath.Join(tempDir, "log.out"))
 	require.NoError(b, err)
-	logrus.SetPusherOptions(
-		logrus.PusherOptions{
-			Out: protolog.NewFileFlusher(file),
-			Formatter: &stdlogrus.TextFormatter{
-				ForceColors: true,
-			},
-		},
+	protolog.SetLogger(
+		protolog.NewLogger(
+			logrus.NewPusher(
+				logrus.PusherOptions{
+					Out: protolog.NewFileFlusher(file),
+					Formatter: &stdlogrus.TextFormatter{
+						ForceColors: true,
+					},
+				},
+			),
+			protolog.LoggerOptions{},
+		),
 	)
 	b.StartTimer()
 	if thread {
@@ -418,7 +423,7 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 
 func runBenchmarkGLog(b *testing.B, run func(), thread bool) {
 	b.StopTimer()
-	glog.Register()
+	protolog.SetLogger(protolog.NewLogger(glog.DefaultTextPusher, protolog.LoggerOptions{}))
 	b.StartTimer()
 	if thread {
 		var wg sync.WaitGroup

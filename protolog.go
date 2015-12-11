@@ -17,6 +17,8 @@ import (
 )
 
 var (
+	// DefaultLevel is the default Level.
+	DefaultLevel = Level_LEVEL_INFO
 	// DefaultIDAllocator is the default IDAllocator.
 	DefaultIDAllocator = &idAllocator{instanceID, 0}
 	// DefaultTimer is the default Timer.
@@ -184,6 +186,7 @@ type LoggerOptions struct {
 	IDAllocator  IDAllocator
 	Timer        Timer
 	ErrorHandler ErrorHandler
+	Level        Level
 }
 
 // NewLogger constructs a new Logger using the given Pusher.

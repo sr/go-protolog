@@ -7,11 +7,14 @@ import (
 
 type pusher struct {
 	marshaller protolog.Marshaller
-	logDebug   bool
 }
 
-func newPusher(marshaller protolog.Marshaller, logDebug bool) *pusher {
-	return &pusher{marshaller, logDebug}
+func newPusher(options PusherOptions) *pusher {
+	marshaller := options.Marshaller
+	if marshaller == nil {
+		marshaller = protolog.DefaultMarshaller
+	}
+	return &pusher{marshaller}
 }
 
 func (p *pusher) Flush() error {
@@ -20,9 +23,6 @@ func (p *pusher) Flush() error {
 }
 
 func (p *pusher) Push(goEntry *protolog.GoEntry) error {
-	if goEntry.Level == protolog.Level_LEVEL_DEBUG && !p.logDebug {
-		return nil
-	}
 	dataBytes, err := p.marshaller.Marshal(goEntry)
 	if err != nil {
 		return err

@@ -3,55 +3,32 @@ Package glog defines functionality for integration with glog.
 */
 package glog // import "go.pedge.io/protolog/glog"
 
-import (
-	"sync"
-
-	"go.pedge.io/protolog"
-)
+import "go.pedge.io/protolog"
 
 var (
-	globalLogDebug   = false
-	globalMarshaller = protolog.NewTextMarshaller(
+	// DefaultTextMarshaller is the default text Marshaller for glog.
+	DefaultTextMarshaller = protolog.NewTextMarshaller(
 		protolog.MarshallerOptions{
 			DisableTimestamp: true,
 			DisableLevel:     true,
 		},
 	)
-	globalLoggerOptions = protolog.LoggerOptions{}
-	globalLock          = &sync.Mutex{}
+
+	// DefaultPusher is the default glog Pusher.
+	DefaultPusher = NewPusher(PusherOptions{})
+	// DefaultTextPusher is the default glog text Pusher.
+	DefaultTextPusher = NewPusher(PusherOptions{Marshaller: DefaultTextMarshaller})
 )
 
-// SetDebug sets whether to log events at the debug level.
-func SetDebug(debug bool) {
-	globalLock.Lock()
-	defer globalLock.Unlock()
-	globalLogDebug = debug
-	register()
+// PusherOptions defines options for constructing a new glog protolog.Pusher.
+type PusherOptions struct {
+	Marshaller protolog.Marshaller
 }
 
-// SetMarshaller sets the global protolog.Marshaller.
-func SetMarshaller(marshaller protolog.Marshaller) {
-	globalLock.Lock()
-	defer globalLock.Unlock()
-	globalMarshaller = marshaller
-	register()
-}
-
-// SetLoggerOptions sets the global protolog.LoggerOptions.
-func SetLoggerOptions(options protolog.LoggerOptions) {
-	globalLock.Lock()
-	defer globalLock.Unlock()
-	globalLoggerOptions = options
-	register()
-}
-
-// Register registers the glog global logger as the protolog Logger.
-func Register() {
-	globalLock.Lock()
-	defer globalLock.Unlock()
-	register()
-}
-
-func register() {
-	protolog.SetLogger(protolog.NewLogger(newPusher(globalMarshaller, globalLogDebug), globalLoggerOptions))
+// NewPusher constructs a new Pusher that pushes to glog.
+//
+// Note that glog is only global, so two glog Pushers push to the same source.
+// If using glog, it is recommended register one glog Pusher as the global protolog.Logger.
+func NewPusher(options PusherOptions) protolog.Pusher {
+	return newPusher(options)
 }
