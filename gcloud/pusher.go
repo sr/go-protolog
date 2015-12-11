@@ -44,13 +44,17 @@ func newPusher(
 }
 
 func (p *pusher) Push(goEntry *protolog.GoEntry) error {
+	id := goEntry.ID
+	if id == "" {
+		id = protolog.DefaultIDAllocator.Allocate()
+	}
 	_, err := p.service.Write(
 		p.projectID,
 		p.logName,
 		&logging.WriteLogEntriesRequest{
 			Entries: []*logging.LogEntry{
 				&logging.LogEntry{
-					InsertId:      goEntry.ID,
+					InsertId:      id,
 					StructPayload: goEntry,
 					Metadata: &logging.LogEntryMetadata{
 						ServiceName: customServiceName,

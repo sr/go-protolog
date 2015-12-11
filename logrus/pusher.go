@@ -74,7 +74,7 @@ func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error
 	logrusEntry.Time = goEntry.Time
 	logrusEntry.Level = logrusLevel
 
-	if p.options.EnableID {
+	if goEntry.ID != "" {
 		logrusEntry.Data["_id"] = goEntry.ID
 	}
 	if !p.options.DisableContexts {

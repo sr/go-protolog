@@ -11,6 +11,7 @@ import (
 
 type logger struct {
 	pusher        Pusher
+	enableID      bool
 	idAllocator   IDAllocator
 	timer         Timer
 	errorHandler  ErrorHandler
@@ -22,6 +23,7 @@ type logger struct {
 func newLogger(pusher Pusher, options LoggerOptions) *logger {
 	logger := &logger{
 		pusher,
+		options.EnableID,
 		options.IDAllocator,
 		options.Timer,
 		options.ErrorHandler,
@@ -53,6 +55,7 @@ func (l *logger) Flush() error {
 func (l *logger) AtLevel(level Level) Logger {
 	return &logger{
 		l.pusher,
+		l.enableID,
 		l.idAllocator,
 		l.timer,
 		l.errorHandler,
@@ -65,6 +68,7 @@ func (l *logger) AtLevel(level Level) Logger {
 func (l *logger) WithContext(context proto.Message) Logger {
 	return &logger{
 		l.pusher,
+		l.enableID,
 		l.idAllocator,
 		l.timer,
 		l.errorHandler,
@@ -138,6 +142,7 @@ func (l *logger) WithFields(fields map[string]interface{}) Logger {
 	}
 	return &logger{
 		l.pusher,
+		l.enableID,
 		l.idAllocator,
 		l.timer,
 		l.errorHandler,
@@ -227,15 +232,16 @@ func (l *logger) printWithError(level Level, event proto.Message) error {
 	if len(l.genericFields.Value) > 0 {
 		contexts = append(contexts, l.genericFields)
 	}
-	return l.pusher.Push(
-		&GoEntry{
-			ID:       l.idAllocator.Allocate(),
-			Level:    level,
-			Time:     l.timer.Now(),
-			Contexts: contexts,
-			Event:    event,
-		},
-	)
+	goEntry := &GoEntry{
+		Level:    level,
+		Time:     l.timer.Now(),
+		Contexts: contexts,
+		Event:    event,
+	}
+	if l.enableID {
+		goEntry.ID = l.idAllocator.Allocate()
+	}
+	return l.pusher.Push(goEntry)
 }
 
 func (l *logger) isLoggedLevel(level Level) bool {

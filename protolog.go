@@ -130,6 +130,8 @@ type Logger interface {
 
 // GoEntry is the go equivalent of an Entry.
 type GoEntry struct {
+	// ID may not be set depending on LoggerOptions.
+	// it is up to the user to determine if ID is required.
 	ID       string          `json:"id,omitempty"`
 	Level    Level           `json:"level,omitempty"`
 	Time     time.Time       `json:"time,omitempty"`
@@ -183,6 +185,7 @@ type ErrorHandler interface {
 
 // LoggerOptions defines options for the Logger constructor.
 type LoggerOptions struct {
+	EnableID     bool
 	IDAllocator  IDAllocator
 	Timer        Timer
 	ErrorHandler ErrorHandler
@@ -245,8 +248,6 @@ func NewReadPuller(reader io.Reader, options ReadPullerOptions) Puller {
 
 // MarshallerOptions provides options for creating Marshallers.
 type MarshallerOptions struct {
-	// EnableID will add the printing of Entry IDs.
-	EnableID bool
 	// DisableTimestamp will suppress the printing of Entry Timestamps.
 	DisableTimestamp bool
 	// DisableLevel will suppress the printing of Entry Levels.

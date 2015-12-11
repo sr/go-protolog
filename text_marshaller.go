@@ -25,7 +25,7 @@ func newTextMarshaller(options MarshallerOptions) *textMarshaller {
 
 func (t *textMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
 	buffer := bytes.NewBuffer(nil)
-	if t.options.EnableID {
+	if goEntry.ID != "" {
 		_, _ = buffer.WriteString(goEntry.ID)
 		_ = buffer.WriteByte(' ')
 	}

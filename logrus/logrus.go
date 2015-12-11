@@ -19,7 +19,6 @@ type PusherOptions struct {
 	Out             protolog.WriteFlusher
 	Hooks           []logrus.Hook
 	Formatter       logrus.Formatter
-	EnableID        bool
 	DisableContexts bool
 }
 
