@@ -1,11 +1,10 @@
-package benchmark
+package protolog_benchmark_long
 
 import (
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"sync"
 	"testing"
 
@@ -16,11 +15,8 @@ import (
 	"go.pedge.io/protolog"
 	"go.pedge.io/protolog/glog"
 	"go.pedge.io/protolog/logrus"
+	"go.pedge.io/protolog/testing"
 )
-
-func init() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-}
 
 const (
 	s = "hello"
@@ -31,10 +27,10 @@ var (
 	arg1 = "foo"
 	arg2 = &google_protobuf.Timestamp{Seconds: 1000, Nanos: 1000}
 
-	foo = &Foo{
+	foo = &protolog_testing.Foo{
 		One: "one",
 		Two: 2,
-		Bar: &Foo_Bar{
+		Bar: &protolog_testing.Bar{
 			One: "1",
 			Two: "two",
 		},
