@@ -2,7 +2,6 @@ package protolog_testing
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -128,7 +127,7 @@ func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 }
 
 func TestPrintSomeStuffGLog(t *testing.T) {
-	require.NoError(t, flag.CommandLine.Set("logtostderr", "true"))
+	require.NoError(t, glog.LogToStderr())
 	protolog.SetLogger(protolog.NewLogger(glog.DefaultTextPusher, protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }

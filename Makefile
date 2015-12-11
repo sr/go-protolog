@@ -37,11 +37,11 @@ test: testdeps pretest
 	go test -test.v ./...
 
 bench: testdeps
-	go test -bench . ./testing
+	go test -test.v -bench . ./testing
 
 bench-long: testdeps bench
 	go get -v go.pedge.io/tools/go-benchmark-columns
-	go test -bench . ./benchmark | go-benchmark-columns
+	go test -test.v -bench . ./benchmark | go-benchmark-columns
 
 clean:
 	go clean -i ./...

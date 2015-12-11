@@ -3,7 +3,11 @@ Package glog defines functionality for integration with glog.
 */
 package glog // import "go.pedge.io/protolog/glog"
 
-import "go.pedge.io/protolog"
+import (
+	"flag"
+
+	"go.pedge.io/protolog"
+)
 
 var (
 	// DefaultTextMarshaller is the default text Marshaller for glog.
@@ -31,4 +35,14 @@ type PusherOptions struct {
 // If using glog, it is recommended register one glog Pusher as the global protolog.Logger.
 func NewPusher(options PusherOptions) protolog.Pusher {
 	return newPusher(options)
+}
+
+// LogToStderr sets the -logtostderr flag.
+func LogToStderr() error {
+	return flag.Set("logtostderr", "true")
+}
+
+// AlsoLogToStderr sets the -alsologtostderr flag.
+func AlsoLogToStderr() error {
+	return flag.Set("alsologtostderr", "true")
 }
