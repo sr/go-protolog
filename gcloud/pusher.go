@@ -11,8 +11,6 @@ import (
 const customServiceName = "compute.googleapis.com"
 
 var (
-	marshaler = &jsonpb.Marshaler{}
-
 	// https://cloud.google.com/logging/docs/api/ref/rest/v1beta3/projects.logs.entries/write#LogSeverity
 	severityName = map[protolog.Level]string{
 		protolog.Level_LEVEL_NONE:  "DEFAULT",
@@ -23,6 +21,8 @@ var (
 		protolog.Level_LEVEL_FATAL: "ERROR",
 		protolog.Level_LEVEL_PANIC: "ALERT",
 	}
+
+	marshaler = &jsonpb.Marshaler{}
 )
 
 type pusher struct {
@@ -44,15 +44,21 @@ func newPusher(
 }
 
 func (p *pusher) Push(goEntry *protolog.GoEntry) error {
-	logEntry, err := newLogEntry(goEntry)
-	if err != nil {
-		return err
-	}
-	_, err = p.service.Write(
+	_, err := p.service.Write(
 		p.projectID,
 		p.logName,
 		&logging.WriteLogEntriesRequest{
-			Entries: []*logging.LogEntry{logEntry},
+			Entries: []*logging.LogEntry{
+				&logging.LogEntry{
+					InsertId:      goEntry.ID,
+					StructPayload: goEntry,
+					Metadata: &logging.LogEntryMetadata{
+						ServiceName: customServiceName,
+						Severity:    severityName[goEntry.Level],
+						Timestamp:   goEntry.Time.Format(time.RFC3339),
+					},
+				},
+			},
 		},
 	).Do()
 	return err
@@ -60,16 +66,4 @@ func (p *pusher) Push(goEntry *protolog.GoEntry) error {
 
 func (p *pusher) Flush() error {
 	return nil
-}
-
-func newLogEntry(goEntry *protolog.GoEntry) (*logging.LogEntry, error) {
-	return &logging.LogEntry{
-		InsertId:      goEntry.ID,
-		StructPayload: goEntry,
-		Metadata: &logging.LogEntryMetadata{
-			ServiceName: customServiceName,
-			Severity:    severityName[goEntry.Level],
-			Timestamp:   goEntry.Time.Format(time.RFC3339),
-		},
-	}, nil
 }
