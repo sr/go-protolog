@@ -50,10 +50,10 @@ proto:
 	find . -name *\.pb\*\.go | xargs strip-package-comments
 
 docker-build:
-	docker build -t pedge/protolog .
+	docker build -t quay.io/pedge/protolog .
 
 docker-test: docker-build
-	docker run pedge/protolog make test
+	docker run quay.io/pedge/protolog make test
 
 .PHONY: \
 	all \

@@ -3,13 +3,7 @@ machine:
     - docker
 dependencies:
   override:
-    - docker build -t pedge/protolog .
+    - docker build -t quay.io/pedge/protolog .
 test:
   override:
-    - docker run pedge/protolog make test
-deployment:
-  hub:
-    branch: master
-    commands:
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker push pedge/protolog
+    - docker run quay.io/pedge/protolog make test
