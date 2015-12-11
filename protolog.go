@@ -13,7 +13,6 @@ import (
 
 	"go.pedge.io/proto/time"
 
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -32,8 +31,14 @@ var (
 	DefaultUnmarshaller = &unmarshaller{}
 	// DefaultTextMarshaller is the default text Marshaller.
 	DefaultTextMarshaller = NewTextMarshaller(MarshallerOptions{})
+
+	// NOTE: the jsoonpb.Marshaler was EPICALLY SLOW in benchmarks
+	// When using the stdlib json.Marshal function instead for the text Marshaller,
+	// a speedup of 6X was observed!
+	//DefaultJSONMarshaller = &jsonpb.Marshaler{}
+
 	// DefaultJSONMarshaller is the default JSONMarshaller.
-	DefaultJSONMarshaller = &jsonpb.Marshaler{}
+	DefaultJSONMarshaller = &stdlibJSONMarshaller{}
 
 	// DiscardLogger is a Logger that discards all logs.
 	DiscardLogger = NewLogger(NewDefaultTextWritePusher(NewWriterFlusher(ioutil.Discard)), LoggerOptions{})
