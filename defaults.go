@@ -2,11 +2,13 @@ package protolog
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"sync/atomic"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 	"github.com/satori/go.uuid"
 )
@@ -67,4 +69,15 @@ func (u *unmarshaller) Unmarshal(reader io.Reader, goEntry *GoEntry) error {
 	}
 	*goEntry = *iGoEntry
 	return nil
+}
+
+type stdlibJSONMarshaller struct{}
+
+func (s *stdlibJSONMarshaller) Marshal(writer io.Writer, message proto.Message) error {
+	data, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	_, err = writer.Write(data)
+	return err
 }

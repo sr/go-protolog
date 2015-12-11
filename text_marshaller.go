@@ -7,12 +7,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-)
-
-var (
-	jsonpbMarshaller = &jsonpb.Marshaler{}
 )
 
 type textMarshaller struct {
@@ -53,7 +48,7 @@ func textMarshalGoEntry(goEntry *GoEntry, options MarshallerOptions) ([]byte, er
 		case *WriterOutput:
 			_, _ = buffer.Write(trimRightSpaceBytes(goEntry.Event.(*WriterOutput).Value))
 		default:
-			if err := textMarshalMessage(buffer, goEntry.Event); err != nil {
+			if err := textMarshalMessage(options.JSONMarshaller, buffer, goEntry.Event); err != nil {
 				return nil, err
 			}
 		}
@@ -70,7 +65,7 @@ func textMarshalGoEntry(goEntry *GoEntry, options MarshallerOptions) ([]byte, er
 				}
 				_, _ = buffer.Write(data)
 			default:
-				if err := textMarshalMessage(buffer, context); err != nil {
+				if err := textMarshalMessage(options.JSONMarshaller, buffer, context); err != nil {
 					return nil, err
 				}
 			}
@@ -83,13 +78,16 @@ func textMarshalGoEntry(goEntry *GoEntry, options MarshallerOptions) ([]byte, er
 	return trimRightSpaceBytes(buffer.Bytes()), nil
 }
 
-func textMarshalMessage(buffer *bytes.Buffer, message proto.Message) error {
+func textMarshalMessage(jsonMarshaller JSONMarshaller, buffer *bytes.Buffer, message proto.Message) error {
 	if message == nil {
 		return nil
 	}
+	if jsonMarshaller == nil {
+		jsonMarshaller = DefaultJSONMarshaller
+	}
 	_, _ = buffer.WriteString(messageName(message))
 	_ = buffer.WriteByte(' ')
-	return jsonpbMarshaller.Marshal(buffer, message)
+	return jsonMarshaller.Marshal(buffer, message)
 }
 
 func trimRightSpaceBytes(b []byte) []byte {

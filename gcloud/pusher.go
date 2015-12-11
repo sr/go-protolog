@@ -3,7 +3,6 @@ package gcloud
 import (
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
 	"go.pedge.io/protolog"
 	"google.golang.org/api/logging/v1beta3"
 )
@@ -21,8 +20,6 @@ var (
 		protolog.Level_LEVEL_FATAL: "ERROR",
 		protolog.Level_LEVEL_PANIC: "ALERT",
 	}
-
-	marshaler = &jsonpb.Marshaler{}
 )
 
 type pusher struct {
