@@ -84,7 +84,7 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 	}
 	require.Equal(
 		t,
-		`DEBUG protolog.testing.Foo {"one":"","two":0,"string_field":"one","int32_field":2}
+		`DEBUG protolog.testing.Foo {"string_field":"one","int32_field":2}
 INFO  protolog.testing.Baz {"bat":{"ban":{"string_field":"one","int32_field":2}}}
 INFO  protolog.testing.Empty {}
 INFO  hello
