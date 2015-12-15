@@ -18,6 +18,7 @@ var _ = math.Inf
 type Level int32
 
 const (
+	// is valid
 	Level_LEVEL_NONE  Level = 0
 	Level_LEVEL_DEBUG Level = 1
 	Level_LEVEL_INFO  Level = 2

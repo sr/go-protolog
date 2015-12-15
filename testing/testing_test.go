@@ -59,6 +59,8 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 	} {
 		_, _ = writer.Write([]byte(s))
 	}
+	writer = logger.Writer()
+	_, _ = writer.Write([]byte("none"))
 	logger.Infoln("a normal line")
 	logger.WithField("someKey", "someValue").Warnln("a warning line")
 
@@ -93,6 +95,7 @@ INFO  writing
 INFO  strings
 INFO  is
 INFO  fun
+NONE  none
 INFO  a normal line
 WARN  a warning line contexts=[{"someKey":"someValue"}]
 `,
@@ -159,6 +162,8 @@ func testPrintSomeStuff(t *testing.T, logger protolog.Logger) {
 	} {
 		_, _ = writer.Write([]byte(s))
 	}
+	writer = logger.Writer()
+	_, _ = writer.Write([]byte("none"))
 	logger.Infoln("a normal line")
 	logger.WithField("someKey", "someValue").WithField("someOtherKey", 1).Warnln("a warning line")
 }

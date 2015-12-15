@@ -3,7 +3,6 @@ package protolog
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/golang/protobuf/proto"
@@ -105,7 +104,7 @@ func (l *logger) Panic(event proto.Message) {
 }
 
 func (l *logger) Print(event proto.Message) {
-	l.print(Level_LEVEL_INFO, event)
+	l.print(Level_LEVEL_NONE, event)
 }
 
 func (l *logger) DebugWriter() io.Writer {
@@ -125,7 +124,7 @@ func (l *logger) ErrorWriter() io.Writer {
 }
 
 func (l *logger) Writer() io.Writer {
-	return l.printWriter(Level_LEVEL_INFO)
+	return l.printWriter(Level_LEVEL_NONE)
 }
 
 func (l *logger) WithField(key string, value interface{}) Logger {
@@ -217,9 +216,10 @@ func (l *logger) print(level Level, event proto.Message) {
 }
 
 func (l *logger) printWriter(level Level) io.Writer {
-	if !l.isLoggedLevel(level) {
-		return ioutil.Discard
-	}
+	// TODO(pedge): think more about this
+	//if !l.isLoggedLevel(level) {
+	//return ioutil.Discard
+	//}
 	return newLogWriter(l, level)
 }
 
@@ -245,7 +245,7 @@ func (l *logger) printWithError(level Level, event proto.Message) error {
 }
 
 func (l *logger) isLoggedLevel(level Level) bool {
-	return level >= l.level
+	return level >= l.level || level == Level_LEVEL_NONE
 }
 
 type logWriter struct {

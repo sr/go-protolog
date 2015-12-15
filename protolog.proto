@@ -24,6 +24,7 @@ message WriterOutput {
 
 // Level is a logging level.
 enum Level {
+  // is valid
   LEVEL_NONE = 0;
   LEVEL_DEBUG = 1;
   LEVEL_INFO = 2;
