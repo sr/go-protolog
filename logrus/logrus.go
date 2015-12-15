@@ -27,3 +27,12 @@ type PusherOptions struct {
 func NewPusher(options PusherOptions) protolog.Pusher {
 	return newPusher(options)
 }
+
+// RedirectStandardLogger redirects the logrus StandardLogger to protolog's global Logger instance.
+func RedirectStandardLogger() {
+	protolog.AddGlobalHook(
+		func(logger protolog.Logger) {
+			logrus.SetOutput(logger.Writer())
+		},
+	)
+}

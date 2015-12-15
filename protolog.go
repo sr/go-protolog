@@ -48,9 +48,13 @@ var (
 	defaultMarshallerOptions = MarshallerOptions{}
 
 	globalLogger            = NewLogger(NewDefaultTextWritePusher(NewFileFlusher(os.Stderr)), LoggerOptions{})
+	globalHooks             = make([]GlobalHook, 0)
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
 )
+
+// GlobalHook is a function that handles a change in the global Logger instance.
+type GlobalHook func(Logger)
 
 // GlobalLogger returns the global Logger instance.
 func GlobalLogger() Logger {
@@ -62,7 +66,9 @@ func SetLogger(logger Logger) {
 	globalLock.Lock()
 	defer globalLock.Unlock()
 	globalLogger = logger
-	redirectStdLogger()
+	for _, globalHook := range globalHooks {
+		globalHook(globalLogger)
+	}
 }
 
 // SetLevel sets the global Logger to to be at the given Level.
@@ -70,23 +76,29 @@ func SetLevel(level Level) {
 	globalLock.Lock()
 	defer globalLock.Unlock()
 	globalLogger = globalLogger.AtLevel(level)
-	redirectStdLogger()
+	for _, globalHook := range globalHooks {
+		globalHook(globalLogger)
+	}
+}
+
+// AddGlobalHook adds a GlobalHook that will be called any time SetLogger or SetLevel is called.
+// It will also be called when added.
+func AddGlobalHook(globalHook GlobalHook) {
+	globalLock.Lock()
+	defer globalLock.Unlock()
+	globalHooks = append(globalHooks, globalHook)
+	globalHook(globalLogger)
 }
 
 // RedirectStdLogger will redirect logs to golang's standard logger to the global Logger instance.
 func RedirectStdLogger() {
-	globalLock.Lock()
-	defer globalLock.Unlock()
-	globalRedirectStdLogger = true
-	redirectStdLogger()
-}
-
-func redirectStdLogger() {
-	if globalRedirectStdLogger {
-		log.SetFlags(0)
-		log.SetOutput(globalLogger.Writer())
-		log.SetPrefix("")
-	}
+	AddGlobalHook(
+		func(logger Logger) {
+			log.SetFlags(0)
+			log.SetOutput(logger.Writer())
+			log.SetPrefix("")
+		},
+	)
 }
 
 // Flusher is an object that can be flushed to a persistent store.
