@@ -50,7 +50,7 @@ func (p *pusher) Push(goEntry *protolog.GoEntry) error {
 		p.logName,
 		&logging.WriteLogEntriesRequest{
 			Entries: []*logging.LogEntry{
-				&logging.LogEntry{
+				{
 					InsertId:      id,
 					StructPayload: goEntry,
 					Metadata: &logging.LogEntryMetadata{
