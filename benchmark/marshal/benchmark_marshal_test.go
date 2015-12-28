@@ -19,10 +19,6 @@ func BenchmarkDefaultTextMarshaller(b *testing.B) {
 	benchmarkMarshaller(b, protolog.DefaultTextMarshaller)
 }
 
-func BenchmarkTextMarshallerWithStdlibJSONMarshaller(b *testing.B) {
-	benchmarkMarshaller(b, protolog.NewTextMarshaller(protolog.MarshallerOptions{JSONMarshaller: protolog.StdlibJSONMarshaller}))
-}
-
 func benchmarkMarshaller(b *testing.B, marshaller protolog.Marshaller) {
 	b.StopTimer()
 	goEntry := getBenchGoEntry()

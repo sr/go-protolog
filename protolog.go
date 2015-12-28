@@ -32,14 +32,6 @@ var (
 	// DefaultTextMarshaller is the default text Marshaller.
 	DefaultTextMarshaller = NewTextMarshaller(MarshallerOptions{})
 
-	// NOTE: the jsoonpb.Marshaler was EPICALLY SLOW in benchmarks
-	// When using the stdlib json.Marshal function instead for the text Marshaller,
-	// a speedup of 6X was observed!
-	//DefaultJSONMarshaller = &jsonpb.Marshaler{}
-
-	// DefaultJSONMarshaller is the default JSONMarshaller.
-	DefaultJSONMarshaller = &stdlibJSONMarshaller{}
-
 	// DiscardLogger is a Logger that discards all logs.
 	DiscardLogger = NewLogger(NewDefaultTextWritePusher(NewWriterFlusher(ioutil.Discard)), LoggerOptions{})
 	// StdlibJSONMarshaller is a JSONMarshaller that uses the stdlib's json.Marshal function.
@@ -287,11 +279,6 @@ func NewReadPuller(reader io.Reader, options ReadPullerOptions) Puller {
 	return newReadPuller(reader, options)
 }
 
-// JSONMarshaller marshals a proto.Message into JSON.
-type JSONMarshaller interface {
-	Marshal(io.Writer, proto.Message) error
-}
-
 // MarshallerOptions provides options for creating Marshallers.
 type MarshallerOptions struct {
 	// DisableTime will suppress the printing of Entry Timestamps.
@@ -300,8 +287,6 @@ type MarshallerOptions struct {
 	DisableLevel bool
 	// DisableContexts will suppress the printing of Entry contexts.
 	DisableContexts bool
-	// If JSON marshalling is done within the Marshaller, use this JSONMarshaller instead
-	JSONMarshaller JSONMarshaller
 }
 
 // NewTextMarshaller constructs a new Marshaller that produces human-readable
@@ -369,6 +354,11 @@ func (m *Entry) ToGoEntry() (*GoEntry, error) {
 		Contexts: contexts,
 		Event:    event,
 	}, nil
+}
+
+// JSONMarshalProtoMessage marshals a proto.Message to an io.Writer.
+func JSONMarshalProtoMessage(writer io.Writer, message proto.Message) error {
+	return jsonMarshalProtoMessage(writer, message)
 }
 
 // Flush calls Flush on the global Logger.

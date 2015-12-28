@@ -63,10 +63,6 @@ func (p *pusher) Flush() error {
 }
 
 func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error) {
-	jsonMarshaller := p.options.JSONMarshaller
-	if jsonMarshaller == nil {
-		jsonMarshaller = protolog.DefaultJSONMarshaller
-	}
 	logrusEntry := logrus.NewEntry(p.logger)
 	logrusEntry.Time = goEntry.Time
 	logrusEntry.Level = levelToLogrusLevel[goEntry.Level]
@@ -87,7 +83,7 @@ func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error
 					}
 				}
 			default:
-				if err := addProtoMessage(jsonMarshaller, logrusEntry, context); err != nil {
+				if err := addProtoMessage(logrusEntry, context); err != nil {
 					return nil, err
 				}
 			}
@@ -101,7 +97,7 @@ func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error
 			logrusEntry.Message = trimRightSpace(string(goEntry.Event.(*protolog.WriterOutput).Value))
 		default:
 			logrusEntry.Data["_event"] = proto.MessageName(goEntry.Event)
-			if err := addProtoMessage(jsonMarshaller, logrusEntry, goEntry.Event); err != nil {
+			if err := addProtoMessage(logrusEntry, goEntry.Event); err != nil {
 				return nil, err
 			}
 		}
@@ -123,8 +119,8 @@ func (p *pusher) logLogrusEntry(entry *logrus.Entry) error {
 	return err
 }
 
-func addProtoMessage(jsonMarshaller protolog.JSONMarshaller, logrusEntry *logrus.Entry, message proto.Message) error {
-	m, err := getFieldsForProtoMessage(jsonMarshaller, message)
+func addProtoMessage(logrusEntry *logrus.Entry, message proto.Message) error {
+	m, err := getFieldsForProtoMessage(message)
 	if err != nil {
 		return err
 	}
@@ -134,9 +130,9 @@ func addProtoMessage(jsonMarshaller protolog.JSONMarshaller, logrusEntry *logrus
 	return nil
 }
 
-func getFieldsForProtoMessage(jsonMarshaller protolog.JSONMarshaller, message proto.Message) (map[string]interface{}, error) {
+func getFieldsForProtoMessage(message proto.Message) (map[string]interface{}, error) {
 	buffer := bytes.NewBuffer(nil)
-	if err := jsonMarshaller.Marshal(buffer, message); err != nil {
+	if err := protolog.JSONMarshalProtoMessage(buffer, message); err != nil {
 		return nil, err
 	}
 	m := make(map[string]interface{}, 0)

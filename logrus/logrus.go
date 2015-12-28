@@ -20,7 +20,6 @@ type PusherOptions struct {
 	Hooks           []logrus.Hook
 	Formatter       logrus.Formatter
 	DisableContexts bool
-	JSONMarshaller  protolog.JSONMarshaller
 }
 
 // NewPusher creates a new protolog.Pusher that logs using Logrus.

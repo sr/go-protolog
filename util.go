@@ -2,10 +2,23 @@ package protolog
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 
 	"github.com/golang/protobuf/proto"
 )
+
+var (
+	// NOTE: the jsoonpb.Marshaler was EPICALLY SLOW in benchmarks
+	// When using the stdlib json.Marshal function instead for the text Marshaller,
+	// a speedup of 6X was observed!
+	//jsonMarshaller = &jsonpb.Marshaler{}
+	jsonMarshaller = &stdlibJSONMarshaller{}
+)
+
+func jsonMarshalProtoMessage(writer io.Writer, message proto.Message) error {
+	return jsonMarshaller.Marshal(writer, message)
+}
 
 func messageToEntryMessage(message proto.Message) (*Entry_Message, error) {
 	if message == nil {
