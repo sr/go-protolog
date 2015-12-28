@@ -17,9 +17,6 @@ var (
 			DisableLevel: true,
 		},
 	)
-
-	// DefaultPusher is the default glog Pusher.
-	DefaultPusher = NewPusher(PusherOptions{})
 )
 
 // PusherOptions defines options for constructing a new glog protolog.Pusher.

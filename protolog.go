@@ -28,17 +28,15 @@ var (
 
 	// DelimitedMarshaller is a Marshaller that uses the protocol buffers write delimited scheme.
 	DelimitedMarshaller = &delimitedMarshaller{}
-	// DefaultTextMarshaller is the default text Marshaller.
-	DefaultTextMarshaller = NewTextMarshaller(MarshallerOptions{})
 	// DelimitedUnmarshaller is an Unmarshaller that uses the protocol buffers write delimited scheme.
 	DelimitedUnmarshaller = &delimitedUnmarshaller{}
 
 	// DiscardLogger is a Logger that discards all logs.
-	DiscardLogger = NewLogger(NewDefaultTextWritePusher(NewWriterFlusher(ioutil.Discard)), LoggerOptions{})
+	DiscardLogger = NewLogger(NewTextWritePusher(NewWriterFlusher(ioutil.Discard), MarshallerOptions{}), LoggerOptions{})
 
 	defaultMarshallerOptions = MarshallerOptions{}
 
-	globalLogger            = NewLogger(NewDefaultTextWritePusher(NewFileFlusher(os.Stderr)), LoggerOptions{})
+	globalLogger            = NewLogger(NewTextWritePusher(NewFileFlusher(os.Stderr), MarshallerOptions{}), LoggerOptions{})
 	globalHooks             = make([]GlobalHook, 0)
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
@@ -246,12 +244,12 @@ func NewWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) Pushe
 	return newWritePusher(writeFlusher, options)
 }
 
-// NewDefaultTextWritePusher constructs a new Pusher using the DefaultTextMarshaller and newlines.
-func NewDefaultTextWritePusher(writeFlusher WriteFlusher) Pusher {
+// NewTextWritePusher constructs a new Pusher using a TextMarshaller and newlines.
+func NewTextWritePusher(writeFlusher WriteFlusher, marshallerOptions MarshallerOptions) Pusher {
 	return NewWritePusher(
 		writeFlusher,
 		WritePusherOptions{
-			Marshaller: DefaultTextMarshaller,
+			Marshaller: NewTextMarshaller(marshallerOptions),
 			Newline:    true,
 		},
 	)
@@ -291,7 +289,7 @@ type MarshallerOptions struct {
 }
 
 // NewTextMarshaller constructs a new Marshaller that produces human-readable
-// marshalled Entry objects. This Marshaller is current inefficient.
+// marshalled Entry objects. This Marshaller is currently inefficient.
 func NewTextMarshaller(options MarshallerOptions) Marshaller {
 	return newTextMarshaller(options)
 }

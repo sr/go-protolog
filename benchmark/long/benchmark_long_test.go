@@ -419,7 +419,7 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 
 func runBenchmarkGLog(b *testing.B, run func(), thread bool) {
 	b.StopTimer()
-	protolog.SetLogger(protolog.NewLogger(protolog_glog.DefaultPusher, protolog.LoggerOptions{}))
+	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher(protolog_glog.PusherOptions{}), protolog.LoggerOptions{}))
 	b.StartTimer()
 	if thread {
 		var wg sync.WaitGroup

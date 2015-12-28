@@ -9,11 +9,6 @@ import (
 	"go.pedge.io/protolog"
 )
 
-var (
-	// DefaultPusher is the default logrus Pusher.
-	DefaultPusher = NewPusher(PusherOptions{})
-)
-
 // PusherOptions defines options for constructing a new Logrus protolog.Pusher.
 type PusherOptions struct {
 	Out             protolog.WriteFlusher

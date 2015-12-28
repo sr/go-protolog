@@ -104,11 +104,11 @@ WARN  a warning line contexts=[{"someKey":"someValue"}]
 }
 
 func TestPrintSomeStuff(t *testing.T) {
-	testPrintSomeStuff(t, protolog.NewLogger(protolog.NewDefaultTextWritePusher(protolog.NewFileFlusher(os.Stderr)), protolog.LoggerOptions{}))
+	testPrintSomeStuff(t, protolog.NewLogger(protolog.NewTextWritePusher(protolog.NewFileFlusher(os.Stderr), protolog.MarshallerOptions{}), protolog.LoggerOptions{}))
 }
 
 func TestPrintSomeStuffLogrus(t *testing.T) {
-	protolog.SetLogger(protolog.NewLogger(protolog_logrus.DefaultPusher, protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
+	protolog.SetLogger(protolog.NewLogger(protolog_logrus.NewPusher(protolog_logrus.PusherOptions{}), protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 
@@ -130,7 +130,7 @@ func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 
 func TestPrintSomeStuffGLog(t *testing.T) {
 	require.NoError(t, protolog_glog.LogToStderr())
-	protolog.SetLogger(protolog.NewLogger(protolog_glog.DefaultPusher, protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
+	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher(protolog_glog.PusherOptions{}), protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 
