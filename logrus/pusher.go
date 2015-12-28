@@ -55,9 +55,21 @@ func (p *pusher) Push(goEntry *protolog.GoEntry) error {
 	return p.logLogrusEntry(logrusEntry)
 }
 
+type flusher interface {
+	Flush() error
+}
+
+type syncer interface {
+	Sync() error
+}
+
 func (p *pusher) Flush() error {
 	if p.options.Out != nil {
-		return p.options.Out.Flush()
+		if syncer, ok := p.options.Out.(syncer); ok {
+			return syncer.Sync()
+		} else if flusher, ok := p.options.Out.(flusher); ok {
+			return flusher.Flush()
+		}
 	}
 	return nil
 }

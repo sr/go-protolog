@@ -2,6 +2,7 @@ package protolog
 
 import (
 	"bytes"
+	"io"
 	"sync"
 )
 
@@ -10,15 +11,15 @@ var (
 )
 
 type writePusher struct {
-	writeFlusher WriteFlusher
-	marshaller   Marshaller
-	newline      bool
-	lock         *sync.Mutex
+	writer     io.Writer
+	marshaller Marshaller
+	newline    bool
+	lock       *sync.Mutex
 }
 
-func newWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) *writePusher {
+func newWritePusher(writer io.Writer, options WritePusherOptions) *writePusher {
 	writePusher := &writePusher{
-		writeFlusher,
+		writer,
 		options.Marshaller,
 		options.Newline,
 		&sync.Mutex{},
@@ -29,8 +30,21 @@ func newWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) *writ
 	return writePusher
 }
 
+type flusher interface {
+	Flush() error
+}
+
+type syncer interface {
+	Sync() error
+}
+
 func (w *writePusher) Flush() error {
-	return w.writeFlusher.Flush()
+	if syncer, ok := w.writer.(syncer); ok {
+		return syncer.Sync()
+	} else if flusher, ok := w.writer.(flusher); ok {
+		return flusher.Flush()
+	}
+	return nil
 }
 
 func (w *writePusher) Push(goEntry *GoEntry) error {
@@ -45,7 +59,7 @@ func (w *writePusher) Push(goEntry *GoEntry) error {
 	}
 	w.lock.Lock()
 	defer w.lock.Unlock()
-	if _, err := w.writeFlusher.Write(data); err != nil {
+	if _, err := w.writer.Write(data); err != nil {
 		return err
 	}
 	return nil

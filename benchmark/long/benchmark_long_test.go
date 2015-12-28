@@ -282,7 +282,7 @@ func setupLogger(b *testing.B) (string, *os.File, protolog.Logger) {
 	require.NoError(b, err)
 	logger := protolog.NewLogger(
 		protolog.NewWritePusher(
-			protolog.NewFileFlusher(file),
+			file,
 			protolog.WritePusherOptions{},
 		),
 		protolog.LoggerOptions{},
@@ -297,7 +297,7 @@ func setupLoggerText(b *testing.B) (string, *os.File, protolog.Logger) {
 	require.NoError(b, err)
 	logger := protolog.NewLogger(
 		protolog.NewWritePusher(
-			protolog.NewFileFlusher(file),
+			file,
 			protolog.WritePusherOptions{
 				Marshaller: protolog.NewTextMarshaller(protolog.MarshallerOptions{}),
 			},
@@ -386,7 +386,7 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 		protolog.NewLogger(
 			protolog_logrus.NewPusher(
 				protolog_logrus.PusherOptions{
-					Out: protolog.NewFileFlusher(file),
+					Out: file,
 					Formatter: &logrus.TextFormatter{
 						ForceColors: true,
 					},

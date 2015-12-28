@@ -37,7 +37,7 @@ var (
 
 	defaultMarshallerOptions = MarshallerOptions{}
 
-	globalLogger            = NewLogger(NewTextWritePusher(NewFileFlusher(os.Stderr), MarshallerOptions{}), LoggerOptions{})
+	globalLogger            = NewLogger(NewTextWritePusher(os.Stderr, MarshallerOptions{}), LoggerOptions{})
 	globalHooks             = make([]GlobalHook, 0)
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
@@ -94,12 +94,6 @@ func RedirectStdLogger() {
 // Flusher is an object that can be flushed to a persistent store.
 type Flusher interface {
 	Flush() error
-}
-
-// WriteFlusher is an io.Writer that can be flushed.
-type WriteFlusher interface {
-	io.Writer
-	Flusher
 }
 
 // Logger is the main logging interface. All methods are also replicated
@@ -240,15 +234,15 @@ type WritePusherOptions struct {
 	Newline    bool
 }
 
-// NewWritePusher constructs a new Pusher that writes to the given WriteFlusher.
-func NewWritePusher(writeFlusher WriteFlusher, options WritePusherOptions) Pusher {
-	return newWritePusher(writeFlusher, options)
+// NewWritePusher constructs a new Pusher that writes to the given io.Writer.
+func NewWritePusher(writer io.Writer, options WritePusherOptions) Pusher {
+	return newWritePusher(writer, options)
 }
 
 // NewTextWritePusher constructs a new Pusher using a TextMarshaller and newlines.
-func NewTextWritePusher(writeFlusher WriteFlusher, marshallerOptions MarshallerOptions) Pusher {
+func NewTextWritePusher(writer io.Writer, marshallerOptions MarshallerOptions) Pusher {
 	return NewWritePusher(
-		writeFlusher,
+		writer,
 		WritePusherOptions{
 			Marshaller: NewTextMarshaller(marshallerOptions),
 			Newline:    true,
@@ -293,33 +287,6 @@ type MarshallerOptions struct {
 // marshalled Entry objects. This Marshaller is currently inefficient.
 func NewTextMarshaller(options MarshallerOptions) Marshaller {
 	return newTextMarshaller(options)
-}
-
-// NewWriterFlusher wraps an io.Writer into a WriteFlusher.
-// Flush() is a no-op on the returned WriteFlusher.
-func NewWriterFlusher(writer io.Writer) WriteFlusher {
-	return newWriterFlusher(writer)
-}
-
-// FileFlusher wraps an *os.File into a Flusher.
-// Flush() will call Sync().
-type FileFlusher struct {
-	*os.File
-}
-
-// NewFileFlusher constructs a new FileFlusher for the given *os.File.
-func NewFileFlusher(file *os.File) *FileFlusher {
-	return &FileFlusher{file}
-}
-
-// Flush calls Sync.
-func (f *FileFlusher) Flush() error {
-	return f.Sync()
-}
-
-// NewMultiWriteFlusher constructs a new WriteFlusher that calls all the given WriteFlushers.
-func NewMultiWriteFlusher(writeFlushers ...WriteFlusher) WriteFlusher {
-	return newMultiWriteFlusher(writeFlushers)
 }
 
 // NewMultiPusher constructs a new Pusher that calls all the given Pushers.

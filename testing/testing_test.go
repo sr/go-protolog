@@ -22,7 +22,7 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 	fakeTimer := newFakeTimer(0)
 	logger := protolog.NewLogger(
 		protolog.NewWritePusher(
-			protolog.NewWriterFlusher(buffer),
+			buffer,
 			protolog.WritePusherOptions{},
 		),
 		protolog.LoggerOptions{
@@ -70,7 +70,7 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 	)
 	writeBuffer := bytes.NewBuffer(nil)
 	writePusher := protolog.NewWritePusher(
-		protolog.NewWriterFlusher(writeBuffer),
+		writeBuffer,
 		protolog.WritePusherOptions{
 			Marshaller: protolog.NewTextMarshaller(
 				protolog.MarshallerOptions{
@@ -104,7 +104,7 @@ WARN  a warning line contexts=[{"someKey":"someValue"}]
 }
 
 func TestPrintSomeStuff(t *testing.T) {
-	testPrintSomeStuff(t, protolog.NewLogger(protolog.NewTextWritePusher(protolog.NewFileFlusher(os.Stderr), protolog.MarshallerOptions{}), protolog.LoggerOptions{}))
+	testPrintSomeStuff(t, protolog.NewLogger(protolog.NewTextWritePusher(os.Stderr, protolog.MarshallerOptions{}), protolog.LoggerOptions{}))
 }
 
 func TestPrintSomeStuffLogrus(t *testing.T) {
