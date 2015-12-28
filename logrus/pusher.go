@@ -11,7 +11,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	"go.pedge.io/protolog"
-	"go.pedge.io/protolog/pb"
 )
 
 var (
@@ -88,32 +87,28 @@ func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 			if context == nil {
 				continue
 			}
-			switch context.(type) {
-			case *protologpb.Fields:
-				for key, value := range context.(*protologpb.Fields).Value {
-					if value != "" {
-						logrusEntry.Data[key] = value
-					}
-				}
-			default:
-				if err := addProtoMessage(logrusEntry, context); err != nil {
-					return nil, err
-				}
-			}
-		}
-	}
-	if entry.Event != nil {
-		switch entry.Event.(type) {
-		case *protologpb.Event:
-			logrusEntry.Message = trimRightSpace(entry.Event.(*protologpb.Event).Message)
-		case *protologpb.WriterOutput:
-			logrusEntry.Message = trimRightSpace(string(entry.Event.(*protologpb.WriterOutput).Value))
-		default:
-			logrusEntry.Data["_event"] = proto.MessageName(entry.Event)
-			if err := addProtoMessage(logrusEntry, entry.Event); err != nil {
+			if err := addProtoMessage(logrusEntry, context); err != nil {
 				return nil, err
 			}
 		}
+		for key, value := range entry.Fields {
+			if value != "" {
+				logrusEntry.Data[key] = value
+			}
+		}
+	}
+	// TODO(pedge): verify only one of Event, Message, WriterOutput?
+	if entry.Event != nil {
+		logrusEntry.Data["_event"] = proto.MessageName(entry.Event)
+		if err := addProtoMessage(logrusEntry, entry.Event); err != nil {
+			return nil, err
+		}
+	}
+	if entry.Message != "" {
+		logrusEntry.Message = trimRightSpace(entry.Message)
+	}
+	if entry.WriterOutput != nil {
+		logrusEntry.Message = trimRightSpace(string(entry.WriterOutput))
 	}
 	return logrusEntry, nil
 }

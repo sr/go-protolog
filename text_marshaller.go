@@ -6,8 +6,6 @@ import (
 	"time"
 	"unicode"
 
-	"go.pedge.io/protolog/pb"
-
 	"github.com/fatih/color"
 	"github.com/golang/protobuf/proto"
 )
@@ -95,38 +93,37 @@ func textMarshalEntry(
 			_ = buffer.WriteByte(' ')
 		}
 	}
+	// TODO(pedge): verify only one of Event, Message, WriterOutput?
 	if entry.Event != nil {
-		switch entry.Event.(type) {
-		case *protologpb.Event:
-			_, _ = buffer.WriteString(entry.Event.(*protologpb.Event).Message)
-		case *protologpb.WriterOutput:
-			_, _ = buffer.Write(trimRightSpaceBytes(entry.Event.(*protologpb.WriterOutput).Value))
-		default:
-			if err := textMarshalMessage(buffer, entry.Event); err != nil {
-				return nil, err
-			}
+		if err := textMarshalMessage(buffer, entry.Event); err != nil {
+			return nil, err
 		}
+	}
+	if entry.Message != "" {
+		_, _ = buffer.WriteString(entry.Message)
+	}
+	if entry.WriterOutput != nil {
+		_, _ = buffer.Write(trimRightSpaceBytes(entry.WriterOutput))
 	}
 	if len(entry.Contexts) > 0 && !disableContexts {
 		_ = buffer.WriteByte(' ')
 		lenContexts := len(entry.Contexts)
 		for i, context := range entry.Contexts {
-			switch context.(type) {
-			case *protologpb.Fields:
-				data, err := json.Marshal(context.(*protologpb.Fields).Value)
-				if err != nil {
-					return nil, err
-				}
-				_, _ = buffer.Write(data)
-			default:
-				if err := textMarshalMessage(buffer, context); err != nil {
-					return nil, err
-				}
+			if err := textMarshalMessage(buffer, context); err != nil {
+				return nil, err
 			}
 			if i != lenContexts-1 {
 				_ = buffer.WriteByte(' ')
 			}
 		}
+	}
+	if len(entry.Fields) > 0 && !disableContexts {
+		_ = buffer.WriteByte(' ')
+		data, err := json.Marshal(entry.Fields)
+		if err != nil {
+			return nil, err
+		}
+		_, _ = buffer.Write(data)
 	}
 	return trimRightSpaceBytes(buffer.Bytes()), nil
 }

@@ -77,11 +77,14 @@ func entryToPBEntry(entry *Entry) (*protologpb.Entry, error) {
 		return nil, fmt.Errorf("protolog: unknown level: %v", entry.Level)
 	}
 	return &protologpb.Entry{
-		Id:        entry.ID,
-		Level:     pbLevel,
-		Timestamp: prototime.TimeToTimestamp(entry.Time),
-		Context:   contexts,
-		Event:     event,
+		Id:           entry.ID,
+		Level:        pbLevel,
+		Timestamp:    prototime.TimeToTimestamp(entry.Time),
+		Context:      contexts,
+		Fields:       entry.Fields,
+		Event:        event,
+		Message:      entry.Message,
+		WriterOutput: entry.WriterOutput,
 	}, nil
 }
 
@@ -99,11 +102,14 @@ func pbEntryToEntry(pbEntry *protologpb.Entry) (*Entry, error) {
 		return nil, fmt.Errorf("protolog: unknown level: %v", pbEntry.Level)
 	}
 	return &Entry{
-		ID:       pbEntry.Id,
-		Level:    level,
-		Time:     prototime.TimestampToTime(pbEntry.Timestamp),
-		Contexts: contexts,
-		Event:    event,
+		ID:           pbEntry.Id,
+		Level:        level,
+		Time:         prototime.TimestampToTime(pbEntry.Timestamp),
+		Contexts:     contexts,
+		Fields:       pbEntry.Fields,
+		Event:        event,
+		Message:      pbEntry.Message,
+		WriterOutput: pbEntry.WriterOutput,
 	}, nil
 }
 

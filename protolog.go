@@ -200,11 +200,16 @@ type Logger interface {
 type Entry struct {
 	// ID may not be set depending on LoggerOptions.
 	// it is up to the user to determine if ID is required.
-	ID       string          `json:"id,omitempty"`
-	Level    Level           `json:"level,omitempty"`
-	Time     time.Time       `json:"time,omitempty"`
-	Contexts []proto.Message `json:"contexts,omitempty"`
-	Event    proto.Message   `json:"event,omitempty"`
+	ID    string    `json:"id,omitempty"`
+	Level Level     `json:"level,omitempty"`
+	Time  time.Time `json:"time,omitempty"`
+	// both Contexts and Fields may be set
+	Contexts []proto.Message   `json:"contexts,omitempty"`
+	Fields   map[string]string `json:"fields,omitempty"`
+	// one of Event, Message, WriterOutput will be set
+	Event        proto.Message `json:"event,omitempty"`
+	Message      string        `json:"message,omitempty"`
+	WriterOutput []byte        `json:"writer_output,omitempty"`
 }
 
 // String defaults a string representation of the Entry.
