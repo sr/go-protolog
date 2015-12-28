@@ -143,8 +143,12 @@ func addProtoMessage(logrusEntry *logrus.Entry, message proto.Message) error {
 }
 
 func getFieldsForProtoMessage(message proto.Message) (map[string]interface{}, error) {
+	data, err := json.Marshal(message)
+	if err != nil {
+		return nil, err
+	}
 	buffer := bytes.NewBuffer(nil)
-	if err := protolog.JSONMarshalProtoMessage(buffer, message); err != nil {
+	if _, err := buffer.Write(data); err != nil {
 		return nil, err
 	}
 	m := make(map[string]interface{}, 0)

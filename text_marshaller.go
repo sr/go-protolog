@@ -102,7 +102,12 @@ func textMarshalMessage(buffer *bytes.Buffer, message proto.Message) error {
 	}
 	_, _ = buffer.WriteString(messageName(message))
 	_ = buffer.WriteByte(' ')
-	return JSONMarshalProtoMessage(buffer, message)
+	data, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	_, err = buffer.Write(data)
+	return err
 }
 
 func trimRightSpaceBytes(b []byte) []byte {

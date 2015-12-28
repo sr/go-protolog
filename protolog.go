@@ -372,11 +372,6 @@ func (m *Entry) ToGoEntry() (*GoEntry, error) {
 	}, nil
 }
 
-// JSONMarshalProtoMessage marshals a proto.Message to an io.Writer.
-func JSONMarshalProtoMessage(writer io.Writer, message proto.Message) error {
-	return jsonMarshalProtoMessage(writer, message)
-}
-
 // Flush calls Flush on the global Logger.
 func Flush() error {
 	return globalLogger.Flush()
