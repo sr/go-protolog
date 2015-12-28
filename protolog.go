@@ -217,7 +217,7 @@ func (g *Entry) String() string {
 	if g == nil {
 		return ""
 	}
-	data, err := textMarshalEntry(g, false, false, false, false)
+	data, err := textMarshalEntry(g, false, false, false, true, false)
 	if err != nil {
 		return ""
 	}
@@ -302,13 +302,6 @@ func WritePusherWithMarshaller(marshaller Marshaller) WritePusherOption {
 	}
 }
 
-// WritePusherAddNewlines adds newlines after each marshalled Entry.
-func WritePusherAddNewlines() WritePusherOption {
-	return func(writePusher *writePusher) {
-		writePusher.newline = true
-	}
-}
-
 // NewWritePusher constructs a new Pusher that writes to the given io.Writer.
 func NewWritePusher(writer io.Writer, options ...WritePusherOption) Pusher {
 	return newWritePusher(writer, options...)
@@ -319,7 +312,6 @@ func NewTextWritePusher(writer io.Writer, textMarshallerOptions ...TextMarshalle
 	return NewWritePusher(
 		writer,
 		WritePusherWithMarshaller(NewTextMarshaller(textMarshallerOptions...)),
-		WritePusherAddNewlines(),
 	)
 }
 
@@ -379,6 +371,13 @@ func TextMarshallerDisableLevel() TextMarshallerOption {
 func TextMarshallerDisableContexts() TextMarshallerOption {
 	return func(textMarshaller *textMarshaller) {
 		textMarshaller.disableContexts = true
+	}
+}
+
+// TextMarshallerDisableNewlines disables newlines after each marshalled Entry.
+func TextMarshallerDisableNewlines() TextMarshallerOption {
+	return func(textMarshaller *textMarshaller) {
+		textMarshaller.disableNewlines = true
 	}
 }
 

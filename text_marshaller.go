@@ -26,11 +26,13 @@ type textMarshaller struct {
 	disableTime     bool
 	disableLevel    bool
 	disableContexts bool
+	disableNewlines bool
 	colorize        bool
 }
 
 func newTextMarshaller(options ...TextMarshallerOption) *textMarshaller {
 	textMarshaller := &textMarshaller{
+		false,
 		false,
 		false,
 		false,
@@ -47,6 +49,7 @@ func (t *textMarshaller) WithColors() TextMarshaller {
 		t.disableTime,
 		t.disableLevel,
 		t.disableContexts,
+		t.disableNewlines,
 		true,
 	}
 }
@@ -56,12 +59,20 @@ func (t *textMarshaller) WithoutColors() TextMarshaller {
 		t.disableTime,
 		t.disableLevel,
 		t.disableContexts,
+		t.disableNewlines,
 		false,
 	}
 }
 
 func (t *textMarshaller) Marshal(entry *Entry) ([]byte, error) {
-	return textMarshalEntry(entry, t.disableTime, t.disableLevel, t.disableContexts, t.colorize)
+	return textMarshalEntry(
+		entry,
+		t.disableTime,
+		t.disableLevel,
+		t.disableContexts,
+		t.disableNewlines,
+		t.colorize,
+	)
 }
 
 func textMarshalEntry(
@@ -69,6 +80,7 @@ func textMarshalEntry(
 	disableTime bool,
 	disableLevel bool,
 	disableContexts bool,
+	disableNewlines bool,
 	colorize bool,
 ) ([]byte, error) {
 	buffer := bytes.NewBuffer(nil)
@@ -125,7 +137,13 @@ func textMarshalEntry(
 		}
 		_, _ = buffer.Write(data)
 	}
-	return trimRightSpaceBytes(buffer.Bytes()), nil
+	data := trimRightSpaceBytes(buffer.Bytes())
+	if !disableNewlines {
+		buffer = bytes.NewBuffer(data)
+		_ = buffer.WriteByte('\n')
+		return buffer.Bytes(), nil
+	}
+	return data, nil
 }
 
 func textMarshalMessage(buffer *bytes.Buffer, message proto.Message) error {

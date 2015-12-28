@@ -1,7 +1,6 @@
 package protolog
 
 import (
-	"bytes"
 	"io"
 	"os"
 	"sync"
@@ -61,11 +60,6 @@ func (w *writePusher) Push(entry *Entry) error {
 	data, err := w.marshaller.Marshal(entry)
 	if err != nil {
 		return err
-	}
-	if w.newline {
-		buffer := bytes.NewBuffer(data)
-		_, _ = buffer.Write(newlineBytes)
-		data = buffer.Bytes()
 	}
 	w.lock.Lock()
 	defer w.lock.Unlock()
