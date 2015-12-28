@@ -214,7 +214,6 @@ type LoggerOptions struct {
 	IDAllocator  IDAllocator
 	Timer        Timer
 	ErrorHandler ErrorHandler
-	Level        Level
 }
 
 // NewLogger constructs a new Logger using the given Pusher.

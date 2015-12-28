@@ -26,7 +26,7 @@ func newLogger(pusher Pusher, options LoggerOptions) *logger {
 		options.IDAllocator,
 		options.Timer,
 		options.ErrorHandler,
-		options.Level,
+		DefaultLevel,
 		make([]proto.Message, 0),
 		&Fields{
 			Value: make(map[string]string, 0),
@@ -40,9 +40,6 @@ func newLogger(pusher Pusher, options LoggerOptions) *logger {
 	}
 	if logger.errorHandler == nil {
 		logger.errorHandler = DefaultErrorHandler
-	}
-	if logger.level == Level_LEVEL_NONE {
-		logger.level = DefaultLevel
 	}
 	return logger
 }
