@@ -70,7 +70,7 @@ func textMarshalEntry(
 		}
 	}
 	if len(entry.Contexts) > 0 && !disableContexts {
-		_, _ = buffer.WriteString(" contexts=[")
+		_ = buffer.WriteByte(' ')
 		lenContexts := len(entry.Contexts)
 		for i, context := range entry.Contexts {
 			switch context.(type) {
@@ -86,10 +86,9 @@ func textMarshalEntry(
 				}
 			}
 			if i != lenContexts-1 {
-				_, _ = buffer.WriteString(", ")
+				_ = buffer.WriteByte(' ')
 			}
 		}
-		_ = buffer.WriteByte(']')
 	}
 	return trimRightSpaceBytes(buffer.Bytes()), nil
 }

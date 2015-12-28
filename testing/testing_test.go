@@ -84,7 +84,7 @@ INFO  is
 INFO  fun
 NONE  none
 INFO  a normal line
-WARN  a warning line contexts=[{"someKey":"someValue"}]
+WARN  a warning line {"someKey":"someValue"}
 `,
 		writeBuffer.String(),
 	)
@@ -101,7 +101,7 @@ func TestPrintSomeStuffLogrus(t *testing.T) {
 }
 
 func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	protolog.SetLogger(
 		protolog.NewLogger(
 			protolog_logrus.NewPusher(
@@ -155,6 +155,16 @@ func testPrintSomeStuff(t *testing.T, logger protolog.Logger) {
 	_, _ = writer.Write([]byte("none"))
 	logger.Infoln("a normal line")
 	logger.WithField("someKey", "someValue").WithField("someOtherKey", 1).Warnln("a warning line")
+	logger.WithField("someKey", "someValue").WithField("someOtherKey", 1).Info(
+		&Baz{
+			Bat: &Baz_Bat{
+				Ban: &Baz_Bat_Ban{
+					StringField: "one",
+					Int32Field:  2,
+				},
+			},
+		},
+	)
 }
 
 type fakeIDAllocator struct {
