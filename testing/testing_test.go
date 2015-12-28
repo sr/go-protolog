@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -92,15 +91,17 @@ WARN  a warning line contexts=[{"someKey":"someValue"}]
 }
 
 func TestPrintSomeStuff(t *testing.T) {
-	testPrintSomeStuff(t, protolog.NewLogger(protolog.NewTextWritePusher(os.Stderr)))
+	testPrintSomeStuff(t, protolog.DefaultLogger)
 }
 
 func TestPrintSomeStuffLogrus(t *testing.T) {
+	t.Skip()
 	protolog.SetLogger(protolog.NewLogger(protolog_logrus.NewPusher(protolog_logrus.PusherOptions{})).AtLevel(protolog.LevelDebug))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 
 func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
+	t.Skip()
 	protolog.SetLogger(
 		protolog.NewLogger(
 			protolog_logrus.NewPusher(
@@ -116,6 +117,7 @@ func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 }
 
 func TestPrintSomeStuffGLog(t *testing.T) {
+	t.Skip()
 	require.NoError(t, protolog_glog.LogToStderr())
 	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher()).AtLevel(protolog.LevelDebug))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
