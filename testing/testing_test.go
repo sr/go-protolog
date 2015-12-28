@@ -117,7 +117,7 @@ func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 
 func TestPrintSomeStuffGLog(t *testing.T) {
 	require.NoError(t, protolog_glog.LogToStderr())
-	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher(protolog_glog.PusherOptions{})).AtLevel(protolog.Level_LEVEL_DEBUG))
+	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher()).AtLevel(protolog.Level_LEVEL_DEBUG))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 

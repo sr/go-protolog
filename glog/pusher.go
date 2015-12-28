@@ -21,12 +21,12 @@ type pusher struct {
 	marshaller protolog.Marshaller
 }
 
-func newPusher(options PusherOptions) *pusher {
-	marshaller := options.Marshaller
-	if marshaller == nil {
-		marshaller = DefaultTextMarshaller
+func newPusher(options ...PusherOption) *pusher {
+	pusher := &pusher{DefaultTextMarshaller}
+	for _, option := range options {
+		option(pusher)
 	}
-	return &pusher{marshaller}
+	return pusher
 }
 
 func (p *pusher) Flush() error {

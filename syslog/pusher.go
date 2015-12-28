@@ -23,12 +23,12 @@ type pusher struct {
 	marshaller protolog.Marshaller
 }
 
-func newPusher(writer *syslog.Writer, options PusherOptions) *pusher {
-	marshaller := options.Marshaller
-	if marshaller == nil {
-		marshaller = DefaultTextMarshaller
+func newPusher(writer *syslog.Writer, options ...PusherOption) *pusher {
+	pusher := &pusher{writer, DefaultTextMarshaller}
+	for _, option := range options {
+		option(pusher)
 	}
-	return &pusher{writer, marshaller}
+	return pusher
 }
 
 func (p *pusher) Flush() error {
