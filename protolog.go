@@ -12,9 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"go.pedge.io/proto/time"
-	"go.pedge.io/protolog/pb"
-
 	"github.com/golang/protobuf/proto"
 )
 
@@ -78,24 +75,6 @@ var (
 		"FATAL": LevelFatal,
 		"PANIC": LevelPanic,
 	}
-	levelToPB = map[Level]protologpb.Level{
-		LevelNone:  protologpb.Level_LEVEL_NONE,
-		LevelDebug: protologpb.Level_LEVEL_DEBUG,
-		LevelInfo:  protologpb.Level_LEVEL_INFO,
-		LevelWarn:  protologpb.Level_LEVEL_WARN,
-		LevelError: protologpb.Level_LEVEL_ERROR,
-		LevelFatal: protologpb.Level_LEVEL_FATAL,
-		LevelPanic: protologpb.Level_LEVEL_PANIC,
-	}
-	pbToLevel = map[protologpb.Level]Level{
-		protologpb.Level_LEVEL_NONE:  LevelNone,
-		protologpb.Level_LEVEL_DEBUG: LevelDebug,
-		protologpb.Level_LEVEL_INFO:  LevelInfo,
-		protologpb.Level_LEVEL_WARN:  LevelWarn,
-		protologpb.Level_LEVEL_ERROR: LevelError,
-		protologpb.Level_LEVEL_FATAL: LevelFatal,
-		protologpb.Level_LEVEL_PANIC: LevelPanic,
-	}
 
 	globalLogger            = DefaultLogger
 	globalHooks             = make([]GlobalHook, 0)
@@ -122,24 +101,6 @@ func NameToLevel(name string) (Level, error) {
 		return LevelNone, fmt.Errorf("protolog: no level for name: %s", name)
 	}
 	return level, nil
-}
-
-// PB returns the protologpb.Level.
-func (l Level) PB() protologpb.Level {
-	pb, ok := levelToPB[l]
-	if !ok {
-		return protologpb.Level_LEVEL_NONE
-	}
-	return pb
-}
-
-// PBToLevel returns the Level.
-func PBToLevel(pb protologpb.Level) Level {
-	level, ok := pbToLevel[pb]
-	if !ok {
-		return LevelNone
-	}
-	return level
 }
 
 // GlobalHook is a function that handles a change in the global Logger instance.
@@ -244,25 +205,6 @@ type GoEntry struct {
 	Time     time.Time       `json:"time,omitempty"`
 	Contexts []proto.Message `json:"contexts,omitempty"`
 	Event    proto.Message   `json:"event,omitempty"`
-}
-
-// ToEntry converts the GoEntry to an Entry.
-func (g *GoEntry) ToEntry() (*protologpb.Entry, error) {
-	contexts, err := messagesToEntryMessages(g.Contexts)
-	if err != nil {
-		return nil, err
-	}
-	event, err := messageToEntryMessage(g.Event)
-	if err != nil {
-		return nil, err
-	}
-	return &protologpb.Entry{
-		Id:        g.ID,
-		Level:     g.Level.PB(),
-		Timestamp: prototime.TimeToTimestamp(g.Time),
-		Context:   contexts,
-		Event:     event,
-	}, nil
 }
 
 // String defaults a string representation of the GoEntry.
@@ -437,25 +379,6 @@ func NewTextMarshaller(options ...TextMarshallerOption) Marshaller {
 // NewMultiPusher constructs a new Pusher that calls all the given Pushers.
 func NewMultiPusher(pushers ...Pusher) Pusher {
 	return newMultiPusher(pushers)
-}
-
-// EntryToGoEntry converts an Entry to a GoEntry.
-func EntryToGoEntry(entry *protologpb.Entry) (*GoEntry, error) {
-	contexts, err := entryMessagesToMessages(entry.Context)
-	if err != nil {
-		return nil, err
-	}
-	event, err := entryMessageToMessage(entry.Event)
-	if err != nil {
-		return nil, err
-	}
-	return &GoEntry{
-		ID:       entry.Id,
-		Level:    PBToLevel(entry.Level),
-		Time:     prototime.TimestampToTime(entry.Timestamp),
-		Contexts: contexts,
-		Event:    event,
-	}, nil
 }
 
 // Flush calls Flush on the global Logger.
