@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 
+	"go.pedge.io/protolog/pb"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -16,7 +18,7 @@ type logger struct {
 	errorHandler  ErrorHandler
 	level         Level
 	contexts      []proto.Message
-	genericFields *Fields
+	genericFields *protologpb.Fields
 }
 
 func newLogger(pusher Pusher, options ...LoggerOption) *logger {
@@ -28,7 +30,7 @@ func newLogger(pusher Pusher, options ...LoggerOption) *logger {
 		DefaultErrorHandler,
 		DefaultLevel,
 		make([]proto.Message, 0),
-		&Fields{
+		&protologpb.Fields{
 			Value: make(map[string]string, 0),
 		},
 	}
@@ -69,53 +71,53 @@ func (l *logger) WithContext(context proto.Message) Logger {
 }
 
 func (l *logger) Debug(event proto.Message) {
-	l.print(Level_LEVEL_DEBUG, event)
+	l.print(LevelDebug, event)
 }
 
 func (l *logger) Info(event proto.Message) {
-	l.print(Level_LEVEL_INFO, event)
+	l.print(LevelInfo, event)
 }
 
 func (l *logger) Warn(event proto.Message) {
-	l.print(Level_LEVEL_WARN, event)
+	l.print(LevelWarn, event)
 }
 
 func (l *logger) Error(event proto.Message) {
-	l.print(Level_LEVEL_ERROR, event)
+	l.print(LevelError, event)
 }
 
 func (l *logger) Fatal(event proto.Message) {
-	l.print(Level_LEVEL_FATAL, event)
+	l.print(LevelFatal, event)
 	os.Exit(1)
 }
 
 func (l *logger) Panic(event proto.Message) {
-	l.print(Level_LEVEL_PANIC, event)
+	l.print(LevelPanic, event)
 	panic(fmt.Sprintf("%+v", event))
 }
 
 func (l *logger) Print(event proto.Message) {
-	l.print(Level_LEVEL_NONE, event)
+	l.print(LevelNone, event)
 }
 
 func (l *logger) DebugWriter() io.Writer {
-	return l.printWriter(Level_LEVEL_DEBUG)
+	return l.printWriter(LevelDebug)
 }
 
 func (l *logger) InfoWriter() io.Writer {
-	return l.printWriter(Level_LEVEL_INFO)
+	return l.printWriter(LevelInfo)
 }
 
 func (l *logger) WarnWriter() io.Writer {
-	return l.printWriter(Level_LEVEL_WARN)
+	return l.printWriter(LevelWarn)
 }
 
 func (l *logger) ErrorWriter() io.Writer {
-	return l.printWriter(Level_LEVEL_ERROR)
+	return l.printWriter(LevelError)
 }
 
 func (l *logger) Writer() io.Writer {
-	return l.printWriter(Level_LEVEL_NONE)
+	return l.printWriter(LevelNone)
 }
 
 func (l *logger) WithField(key string, value interface{}) Logger {
@@ -138,66 +140,66 @@ func (l *logger) WithFields(fields map[string]interface{}) Logger {
 		l.errorHandler,
 		l.level,
 		l.contexts,
-		&Fields{
+		&protologpb.Fields{
 			Value: contextFields,
 		},
 	}
 }
 
 func (l *logger) Debugf(format string, args ...interface{}) {
-	l.Debug(&Event{Message: fmt.Sprintf(format, args...)})
+	l.Debug(&protologpb.Event{Message: fmt.Sprintf(format, args...)})
 }
 
 func (l *logger) Debugln(args ...interface{}) {
-	l.Debug(&Event{Message: fmt.Sprint(args...)})
+	l.Debug(&protologpb.Event{Message: fmt.Sprint(args...)})
 }
 
 func (l *logger) Infof(format string, args ...interface{}) {
-	l.Info(&Event{Message: fmt.Sprintf(format, args...)})
+	l.Info(&protologpb.Event{Message: fmt.Sprintf(format, args...)})
 }
 
 func (l *logger) Infoln(args ...interface{}) {
-	l.Info(&Event{Message: fmt.Sprint(args...)})
+	l.Info(&protologpb.Event{Message: fmt.Sprint(args...)})
 }
 
 func (l *logger) Warnf(format string, args ...interface{}) {
-	l.Warn(&Event{Message: fmt.Sprintf(format, args...)})
+	l.Warn(&protologpb.Event{Message: fmt.Sprintf(format, args...)})
 }
 
 func (l *logger) Warnln(args ...interface{}) {
-	l.Warn(&Event{Message: fmt.Sprint(args...)})
+	l.Warn(&protologpb.Event{Message: fmt.Sprint(args...)})
 }
 
 func (l *logger) Errorf(format string, args ...interface{}) {
-	l.Error(&Event{Message: fmt.Sprintf(format, args...)})
+	l.Error(&protologpb.Event{Message: fmt.Sprintf(format, args...)})
 }
 
 func (l *logger) Errorln(args ...interface{}) {
-	l.Error(&Event{Message: fmt.Sprint(args...)})
+	l.Error(&protologpb.Event{Message: fmt.Sprint(args...)})
 }
 
 func (l *logger) Fatalf(format string, args ...interface{}) {
-	l.Fatal(&Event{Message: fmt.Sprintf(format, args...)})
+	l.Fatal(&protologpb.Event{Message: fmt.Sprintf(format, args...)})
 }
 
 func (l *logger) Fatalln(args ...interface{}) {
-	l.Fatal(&Event{Message: fmt.Sprint(args...)})
+	l.Fatal(&protologpb.Event{Message: fmt.Sprint(args...)})
 }
 
 func (l *logger) Panicf(format string, args ...interface{}) {
-	l.Panic(&Event{Message: fmt.Sprintf(format, args...)})
+	l.Panic(&protologpb.Event{Message: fmt.Sprintf(format, args...)})
 }
 
 func (l *logger) Panicln(args ...interface{}) {
-	l.Panic(&Event{Message: fmt.Sprint(args...)})
+	l.Panic(&protologpb.Event{Message: fmt.Sprint(args...)})
 }
 
 func (l *logger) Printf(format string, args ...interface{}) {
-	l.Print(&Event{Message: fmt.Sprintf(format, args...)})
+	l.Print(&protologpb.Event{Message: fmt.Sprintf(format, args...)})
 }
 
 func (l *logger) Println(args ...interface{}) {
-	l.Print(&Event{Message: fmt.Sprint(args...)})
+	l.Print(&protologpb.Event{Message: fmt.Sprint(args...)})
 }
 
 func (l *logger) print(level Level, event proto.Message) {
@@ -236,7 +238,7 @@ func (l *logger) printWithError(level Level, event proto.Message) error {
 }
 
 func (l *logger) isLoggedLevel(level Level) bool {
-	return level >= l.level || level == Level_LEVEL_NONE
+	return level >= l.level || level == LevelNone
 }
 
 type logWriter struct {
@@ -249,7 +251,7 @@ func newLogWriter(logger *logger, level Level) *logWriter {
 }
 
 func (w *logWriter) Write(p []byte) (int, error) {
-	if err := w.logger.printWithError(w.level, &WriterOutput{Value: p}); err != nil {
+	if err := w.logger.printWithError(w.level, &protologpb.WriterOutput{Value: p}); err != nil {
 		return 0, err
 	}
 	return len(p), nil

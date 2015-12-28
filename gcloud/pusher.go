@@ -12,13 +12,13 @@ const customServiceName = "compute.googleapis.com"
 var (
 	// https://cloud.google.com/logging/docs/api/ref/rest/v1beta3/projects.logs.entries/write#LogSeverity
 	severityName = map[protolog.Level]string{
-		protolog.Level_LEVEL_NONE:  "DEFAULT",
-		protolog.Level_LEVEL_DEBUG: "DEBUG",
-		protolog.Level_LEVEL_INFO:  "INFO",
-		protolog.Level_LEVEL_WARN:  "WARNING",
-		protolog.Level_LEVEL_ERROR: "ERROR",
-		protolog.Level_LEVEL_FATAL: "ERROR",
-		protolog.Level_LEVEL_PANIC: "ALERT",
+		protolog.LevelNone:  "DEFAULT",
+		protolog.LevelDebug: "DEBUG",
+		protolog.LevelInfo:  "INFO",
+		protolog.LevelWarn:  "WARNING",
+		protolog.LevelError: "ERROR",
+		protolog.LevelFatal: "ERROR",
+		protolog.LevelPanic: "ALERT",
 	}
 )
 

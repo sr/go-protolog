@@ -4,20 +4,40 @@ Package protolog defines the main protolog functionality.
 package protolog // import "go.pedge.io/protolog"
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
 	"go.pedge.io/proto/time"
+	"go.pedge.io/protolog/pb"
 
 	"github.com/golang/protobuf/proto"
 )
 
+const (
+	// LevelNone represents no Level.
+	LevelNone Level = 0
+	// LevelDebug is the debug Level.
+	LevelDebug Level = 1
+	// LevelInfo is the info Level.
+	LevelInfo Level = 2
+	// LevelWarn is the warn Level.
+	LevelWarn Level = 3
+	// LevelError is the error Level.
+	LevelError Level = 4
+	// LevelFatal is the fatal Level.
+	LevelFatal Level = 5
+	// LevelPanic is the panic Level.
+	LevelPanic Level = 6
+)
+
 var (
 	// DefaultLevel is the default Level.
-	DefaultLevel = Level_LEVEL_INFO
+	DefaultLevel = LevelInfo
 	// DefaultIDAllocator is the default IDAllocator.
 	DefaultIDAllocator = &idAllocator{instanceID, 0}
 	// DefaultTimer is the default Timer.
@@ -40,11 +60,87 @@ var (
 	// DefaultLogger is the default Logger.
 	DefaultLogger = NewLogger(DefaultPusher)
 
+	levelToName = map[Level]string{
+		LevelNone:  "NONE",
+		LevelDebug: "DEBUG",
+		LevelInfo:  "INFO",
+		LevelWarn:  "WARN",
+		LevelError: "ERROR",
+		LevelFatal: "FATAL",
+		LevelPanic: "PANIC",
+	}
+	nameToLevel = map[string]Level{
+		"NONE":  LevelNone,
+		"DEBUG": LevelDebug,
+		"INFO":  LevelInfo,
+		"WARN":  LevelWarn,
+		"ERROR": LevelError,
+		"FATAL": LevelFatal,
+		"PANIC": LevelPanic,
+	}
+	levelToPB = map[Level]protologpb.Level{
+		LevelNone:  protologpb.Level_LEVEL_NONE,
+		LevelDebug: protologpb.Level_LEVEL_DEBUG,
+		LevelInfo:  protologpb.Level_LEVEL_INFO,
+		LevelWarn:  protologpb.Level_LEVEL_WARN,
+		LevelError: protologpb.Level_LEVEL_ERROR,
+		LevelFatal: protologpb.Level_LEVEL_FATAL,
+		LevelPanic: protologpb.Level_LEVEL_PANIC,
+	}
+	pbToLevel = map[protologpb.Level]Level{
+		protologpb.Level_LEVEL_NONE:  LevelNone,
+		protologpb.Level_LEVEL_DEBUG: LevelDebug,
+		protologpb.Level_LEVEL_INFO:  LevelInfo,
+		protologpb.Level_LEVEL_WARN:  LevelWarn,
+		protologpb.Level_LEVEL_ERROR: LevelError,
+		protologpb.Level_LEVEL_FATAL: LevelFatal,
+		protologpb.Level_LEVEL_PANIC: LevelPanic,
+	}
+
 	globalLogger            = DefaultLogger
 	globalHooks             = make([]GlobalHook, 0)
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
 )
+
+// Level is a logging level.
+type Level int32
+
+// String returns the name of a Level or the numerical value if the Level is unknown.
+func (l Level) String() string {
+	name, ok := levelToName[l]
+	if !ok {
+		return strconv.Itoa(int(l))
+	}
+	return name
+}
+
+// NameToLevel returns the Level for the given name.
+func NameToLevel(name string) (Level, error) {
+	level, ok := nameToLevel[name]
+	if !ok {
+		return LevelNone, fmt.Errorf("protolog: no level for name: %s", name)
+	}
+	return level, nil
+}
+
+// PB returns the protologpb.Level.
+func (l Level) PB() protologpb.Level {
+	pb, ok := levelToPB[l]
+	if !ok {
+		return protologpb.Level_LEVEL_NONE
+	}
+	return pb
+}
+
+// PBToLevel returns the Level.
+func PBToLevel(pb protologpb.Level) Level {
+	level, ok := pbToLevel[pb]
+	if !ok {
+		return LevelNone
+	}
+	return level
+}
 
 // GlobalHook is a function that handles a change in the global Logger instance.
 type GlobalHook func(Logger)
@@ -151,7 +247,7 @@ type GoEntry struct {
 }
 
 // ToEntry converts the GoEntry to an Entry.
-func (g *GoEntry) ToEntry() (*Entry, error) {
+func (g *GoEntry) ToEntry() (*protologpb.Entry, error) {
 	contexts, err := messagesToEntryMessages(g.Contexts)
 	if err != nil {
 		return nil, err
@@ -160,9 +256,9 @@ func (g *GoEntry) ToEntry() (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Entry{
+	return &protologpb.Entry{
 		Id:        g.ID,
-		Level:     g.Level,
+		Level:     g.Level.PB(),
 		Timestamp: prototime.TimeToTimestamp(g.Time),
 		Context:   contexts,
 		Event:     event,
@@ -343,30 +439,20 @@ func NewMultiPusher(pushers ...Pusher) Pusher {
 	return newMultiPusher(pushers)
 }
 
-// UnmarshalledContexts returns the context Messages marshalled on an Entry object.
-func (m *Entry) UnmarshalledContexts() ([]proto.Message, error) {
-	return entryMessagesToMessages(m.Context)
-}
-
-// UnmarshalledEvent returns the event Message marshalled on an Entry object.
-func (m *Entry) UnmarshalledEvent() (proto.Message, error) {
-	return entryMessageToMessage(m.Event)
-}
-
-// ToGoEntry converts to Entry to a GoEntry.
-func (m *Entry) ToGoEntry() (*GoEntry, error) {
-	contexts, err := m.UnmarshalledContexts()
+// EntryToGoEntry converts an Entry to a GoEntry.
+func EntryToGoEntry(entry *protologpb.Entry) (*GoEntry, error) {
+	contexts, err := entryMessagesToMessages(entry.Context)
 	if err != nil {
 		return nil, err
 	}
-	event, err := m.UnmarshalledEvent()
+	event, err := entryMessageToMessage(entry.Event)
 	if err != nil {
 		return nil, err
 	}
 	return &GoEntry{
-		ID:       m.Id,
-		Level:    m.Level,
-		Time:     prototime.TimestampToTime(m.Timestamp),
+		ID:       entry.Id,
+		Level:    PBToLevel(entry.Level),
+		Time:     prototime.TimestampToTime(entry.Timestamp),
 		Contexts: contexts,
 		Event:    event,
 	}, nil

@@ -11,17 +11,18 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	"go.pedge.io/protolog"
+	"go.pedge.io/protolog/pb"
 )
 
 var (
 	levelToLogrusLevel = map[protolog.Level]logrus.Level{
-		protolog.Level_LEVEL_NONE:  logrus.InfoLevel,
-		protolog.Level_LEVEL_DEBUG: logrus.DebugLevel,
-		protolog.Level_LEVEL_INFO:  logrus.InfoLevel,
-		protolog.Level_LEVEL_WARN:  logrus.WarnLevel,
-		protolog.Level_LEVEL_ERROR: logrus.ErrorLevel,
-		protolog.Level_LEVEL_FATAL: logrus.FatalLevel,
-		protolog.Level_LEVEL_PANIC: logrus.PanicLevel,
+		protolog.LevelNone:  logrus.InfoLevel,
+		protolog.LevelDebug: logrus.DebugLevel,
+		protolog.LevelInfo:  logrus.InfoLevel,
+		protolog.LevelWarn:  logrus.WarnLevel,
+		protolog.LevelError: logrus.ErrorLevel,
+		protolog.LevelFatal: logrus.FatalLevel,
+		protolog.LevelPanic: logrus.PanicLevel,
 	}
 )
 
@@ -88,8 +89,8 @@ func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error
 				continue
 			}
 			switch context.(type) {
-			case *protolog.Fields:
-				for key, value := range context.(*protolog.Fields).Value {
+			case *protologpb.Fields:
+				for key, value := range context.(*protologpb.Fields).Value {
 					if value != "" {
 						logrusEntry.Data[key] = value
 					}
@@ -103,10 +104,10 @@ func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error
 	}
 	if goEntry.Event != nil {
 		switch goEntry.Event.(type) {
-		case *protolog.Event:
-			logrusEntry.Message = trimRightSpace(goEntry.Event.(*protolog.Event).Message)
-		case *protolog.WriterOutput:
-			logrusEntry.Message = trimRightSpace(string(goEntry.Event.(*protolog.WriterOutput).Value))
+		case *protologpb.Event:
+			logrusEntry.Message = trimRightSpace(goEntry.Event.(*protologpb.Event).Message)
+		case *protologpb.WriterOutput:
+			logrusEntry.Message = trimRightSpace(string(goEntry.Event.(*protologpb.WriterOutput).Value))
 		default:
 			logrusEntry.Data["_event"] = proto.MessageName(goEntry.Event)
 			if err := addProtoMessage(logrusEntry, goEntry.Event); err != nil {

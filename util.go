@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"go.pedge.io/protolog/pb"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -11,7 +13,7 @@ import (
 // When using the stdlib json.Marshal function instead for the text Marshaller,
 // a speedup of 6X was observed!
 
-func messageToEntryMessage(message proto.Message) (*Entry_Message, error) {
+func messageToEntryMessage(message proto.Message) (*protologpb.Entry_Message, error) {
 	if message == nil {
 		return nil, nil
 	}
@@ -19,13 +21,13 @@ func messageToEntryMessage(message proto.Message) (*Entry_Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Entry_Message{
+	return &protologpb.Entry_Message{
 		Name:  messageName(message),
 		Value: value,
 	}, nil
 }
 
-func entryMessageToMessage(entryMessage *Entry_Message) (proto.Message, error) {
+func entryMessageToMessage(entryMessage *protologpb.Entry_Message) (proto.Message, error) {
 	if entryMessage == nil {
 		return nil, nil
 	}
@@ -39,11 +41,11 @@ func entryMessageToMessage(entryMessage *Entry_Message) (proto.Message, error) {
 	return message, nil
 }
 
-func messagesToEntryMessages(messages []proto.Message) ([]*Entry_Message, error) {
+func messagesToEntryMessages(messages []proto.Message) ([]*protologpb.Entry_Message, error) {
 	if messages == nil {
 		return nil, nil
 	}
-	entryMessages := make([]*Entry_Message, len(messages))
+	entryMessages := make([]*protologpb.Entry_Message, len(messages))
 	for i, message := range messages {
 		entryMessage, err := messageToEntryMessage(message)
 		if err != nil {
@@ -54,7 +56,7 @@ func messagesToEntryMessages(messages []proto.Message) ([]*Entry_Message, error)
 	return entryMessages, nil
 }
 
-func entryMessagesToMessages(entryMessages []*Entry_Message) ([]proto.Message, error) {
+func entryMessagesToMessages(entryMessages []*protologpb.Entry_Message) ([]proto.Message, error) {
 	if entryMessages == nil {
 		return nil, nil
 	}

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"io"
 
+	"go.pedge.io/protolog/pb"
+
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 )
 
@@ -24,11 +26,11 @@ func (m *delimitedMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
 type delimitedUnmarshaller struct{}
 
 func (u *delimitedUnmarshaller) Unmarshal(reader io.Reader, goEntry *GoEntry) error {
-	entry := &Entry{}
+	entry := &protologpb.Entry{}
 	if _, err := pbutil.ReadDelimited(reader, entry); err != nil {
 		return err
 	}
-	iGoEntry, err := entry.ToGoEntry()
+	iGoEntry, err := EntryToGoEntry(entry)
 	if err != nil {
 		return err
 	}

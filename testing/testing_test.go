@@ -26,7 +26,7 @@ func TestRoundtripAndTextMarshaller(t *testing.T) {
 		),
 		protolog.LoggerWithIDAllocator(newFakeIDAllocator()),
 		protolog.LoggerWithTimer(fakeTimer),
-	).AtLevel(protolog.Level_LEVEL_DEBUG)
+	).AtLevel(protolog.LevelDebug)
 	logger.Debug(
 		&Foo{
 			StringField: "one",
@@ -96,7 +96,7 @@ func TestPrintSomeStuff(t *testing.T) {
 }
 
 func TestPrintSomeStuffLogrus(t *testing.T) {
-	protolog.SetLogger(protolog.NewLogger(protolog_logrus.NewPusher(protolog_logrus.PusherOptions{})).AtLevel(protolog.Level_LEVEL_DEBUG))
+	protolog.SetLogger(protolog.NewLogger(protolog_logrus.NewPusher(protolog_logrus.PusherOptions{})).AtLevel(protolog.LevelDebug))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 
@@ -110,14 +110,14 @@ func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 					},
 				},
 			),
-		).AtLevel(protolog.Level_LEVEL_DEBUG),
+		).AtLevel(protolog.LevelDebug),
 	)
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 
 func TestPrintSomeStuffGLog(t *testing.T) {
 	require.NoError(t, protolog_glog.LogToStderr())
-	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher()).AtLevel(protolog.Level_LEVEL_DEBUG))
+	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher()).AtLevel(protolog.LevelDebug))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 

@@ -3,9 +3,10 @@ package protolog
 import (
 	"bytes"
 	"encoding/json"
-	"strings"
 	"time"
 	"unicode"
+
+	"go.pedge.io/protolog/pb"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -51,7 +52,7 @@ func textMarshalGoEntry(goEntry *GoEntry, options textMarshallerOptions) ([]byte
 		_ = buffer.WriteByte(' ')
 	}
 	if !options.disableLevel {
-		levelString := strings.Replace(goEntry.Level.String(), "LEVEL_", "", -1)
+		levelString := goEntry.Level.String()
 		_, _ = buffer.WriteString(levelString)
 		if len(levelString) == 4 {
 			_, _ = buffer.WriteString("  ")
@@ -61,10 +62,10 @@ func textMarshalGoEntry(goEntry *GoEntry, options textMarshallerOptions) ([]byte
 	}
 	if goEntry.Event != nil {
 		switch goEntry.Event.(type) {
-		case *Event:
-			_, _ = buffer.WriteString(goEntry.Event.(*Event).Message)
-		case *WriterOutput:
-			_, _ = buffer.Write(trimRightSpaceBytes(goEntry.Event.(*WriterOutput).Value))
+		case *protologpb.Event:
+			_, _ = buffer.WriteString(goEntry.Event.(*protologpb.Event).Message)
+		case *protologpb.WriterOutput:
+			_, _ = buffer.Write(trimRightSpaceBytes(goEntry.Event.(*protologpb.WriterOutput).Value))
 		default:
 			if err := textMarshalMessage(buffer, goEntry.Event); err != nil {
 				return nil, err
@@ -76,8 +77,8 @@ func textMarshalGoEntry(goEntry *GoEntry, options textMarshallerOptions) ([]byte
 		lenContexts := len(goEntry.Contexts)
 		for i, context := range goEntry.Contexts {
 			switch context.(type) {
-			case *Fields:
-				data, err := json.Marshal(context.(*Fields).Value)
+			case *protologpb.Fields:
+				data, err := json.Marshal(context.(*protologpb.Fields).Value)
 				if err != nil {
 					return nil, err
 				}

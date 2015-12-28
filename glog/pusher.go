@@ -7,13 +7,13 @@ import (
 
 var (
 	levelToLogFunc = map[protolog.Level]func(...interface{}){
-		protolog.Level_LEVEL_NONE:  glog.Infoln,
-		protolog.Level_LEVEL_DEBUG: glog.Infoln,
-		protolog.Level_LEVEL_INFO:  glog.Infoln,
-		protolog.Level_LEVEL_WARN:  glog.Warningln,
-		protolog.Level_LEVEL_ERROR: glog.Errorln,
-		protolog.Level_LEVEL_FATAL: glog.Errorln,
-		protolog.Level_LEVEL_PANIC: glog.Errorln,
+		protolog.LevelNone:  glog.Infoln,
+		protolog.LevelDebug: glog.Infoln,
+		protolog.LevelInfo:  glog.Infoln,
+		protolog.LevelWarn:  glog.Warningln,
+		protolog.LevelError: glog.Errorln,
+		protolog.LevelFatal: glog.Errorln,
+		protolog.LevelPanic: glog.Errorln,
 	}
 )
 

@@ -49,7 +49,7 @@ func getBenchGoEntry() *protolog.GoEntry {
 	}
 	goEntry := &protolog.GoEntry{
 		ID:    "123",
-		Level: protolog.Level_LEVEL_INFO,
+		Level: protolog.LevelInfo,
 		Time:  time.Now().UTC(),
 		Contexts: []proto.Message{
 			foo,

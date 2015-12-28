@@ -284,7 +284,7 @@ func setupLogger(b *testing.B) (string, *os.File, protolog.Logger) {
 		protolog.NewWritePusher(
 			file,
 		),
-	).AtLevel(protolog.Level_LEVEL_INFO)
+	).AtLevel(protolog.LevelInfo)
 	return tempDir, file, logger
 }
 
@@ -297,7 +297,7 @@ func setupLoggerText(b *testing.B) (string, *os.File, protolog.Logger) {
 		protolog.NewTextWritePusher(
 			file,
 		),
-	).AtLevel(protolog.Level_LEVEL_INFO)
+	).AtLevel(protolog.LevelInfo)
 	return tempDir, file, logger
 }
 

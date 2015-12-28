@@ -4,6 +4,8 @@ import "google/protobuf/timestamp.proto";
 
 package protolog;
 
+option go_package = "protologpb";
+
 // Fields is a generic context Message used for
 // the Logger functions WithField and WithFields.
 message Fields {
