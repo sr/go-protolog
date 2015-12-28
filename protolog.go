@@ -212,7 +212,7 @@ func (g *Entry) String() string {
 	if g == nil {
 		return ""
 	}
-	data, err := textMarshalEntry(g, defaultTextMarshallerOptions)
+	data, err := textMarshalEntry(g, false, false, false)
 	if err != nil {
 		return ""
 	}
@@ -347,26 +347,26 @@ func NewReadPuller(reader io.Reader, options ...ReadPullerOption) Puller {
 }
 
 // TextMarshallerOption is an option for creating Marshallers.
-type TextMarshallerOption func(*textMarshallerOptions)
+type TextMarshallerOption func(*textMarshaller)
 
 // TextMarshallerDisableTime will suppress the printing of Entry Timestamps.
 func TextMarshallerDisableTime() TextMarshallerOption {
-	return func(textMarshallerOptions *textMarshallerOptions) {
-		textMarshallerOptions.disableTime = true
+	return func(textMarshaller *textMarshaller) {
+		textMarshaller.disableTime = true
 	}
 }
 
 // TextMarshallerDisableLevel will suppress the printing of Entry Levels.
 func TextMarshallerDisableLevel() TextMarshallerOption {
-	return func(textMarshallerOptions *textMarshallerOptions) {
-		textMarshallerOptions.disableLevel = true
+	return func(textMarshaller *textMarshaller) {
+		textMarshaller.disableLevel = true
 	}
 }
 
 // TextMarshallerDisableContexts will suppress the printing of Entry contexts.
 func TextMarshallerDisableContexts() TextMarshallerOption {
-	return func(textMarshallerOptions *textMarshallerOptions) {
-		textMarshallerOptions.disableContexts = true
+	return func(textMarshaller *textMarshaller) {
+		textMarshaller.disableContexts = true
 	}
 }
 

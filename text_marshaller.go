@@ -11,47 +11,44 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-var (
-	defaultTextMarshallerOptions = textMarshallerOptions{}
-)
-
-type textMarshallerOptions struct {
+type textMarshaller struct {
 	disableTime     bool
 	disableLevel    bool
 	disableContexts bool
 }
 
-type textMarshaller struct {
-	options textMarshallerOptions
-}
-
 func newTextMarshaller(options ...TextMarshallerOption) *textMarshaller {
-	textMarshallerOptions := textMarshallerOptions{
+	textMarshaller := &textMarshaller{
 		false,
 		false,
 		false,
 	}
 	for _, option := range options {
-		option(&textMarshallerOptions)
+		option(textMarshaller)
 	}
-	return &textMarshaller{textMarshallerOptions}
+	return textMarshaller
 }
 
 func (t *textMarshaller) Marshal(entry *Entry) ([]byte, error) {
-	return textMarshalEntry(entry, t.options)
+	return textMarshalEntry(entry, t.disableTime, t.disableLevel, t.disableContexts)
 }
 
-func textMarshalEntry(entry *Entry, options textMarshallerOptions) ([]byte, error) {
+func textMarshalEntry(
+	entry *Entry,
+	disableTime bool,
+	disableLevel bool,
+	disableContexts bool,
+) ([]byte, error) {
 	buffer := bytes.NewBuffer(nil)
 	if entry.ID != "" {
 		_, _ = buffer.WriteString(entry.ID)
 		_ = buffer.WriteByte(' ')
 	}
-	if !options.disableTime {
+	if !disableTime {
 		_, _ = buffer.WriteString(entry.Time.Format(time.RFC3339))
 		_ = buffer.WriteByte(' ')
 	}
-	if !options.disableLevel {
+	if !disableLevel {
 		levelString := entry.Level.String()
 		_, _ = buffer.WriteString(levelString)
 		if len(levelString) == 4 {
@@ -72,7 +69,7 @@ func textMarshalEntry(entry *Entry, options textMarshallerOptions) ([]byte, erro
 			}
 		}
 	}
-	if len(entry.Contexts) > 0 && !options.disableContexts {
+	if len(entry.Contexts) > 0 && !disableContexts {
 		_, _ = buffer.WriteString(" contexts=[")
 		lenContexts := len(entry.Contexts)
 		for i, context := range entry.Contexts {
