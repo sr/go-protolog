@@ -12,10 +12,8 @@ import (
 var (
 	// DefaultTextMarshaller is the default text Marshaller for glog.
 	DefaultTextMarshaller = protolog.NewTextMarshaller(
-		protolog.MarshallerOptions{
-			DisableTime:  true,
-			DisableLevel: true,
-		},
+		protolog.TextMarshallerDisableTime(),
+		protolog.TextMarshallerDisableLevel(),
 	)
 )
 

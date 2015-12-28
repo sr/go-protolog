@@ -30,7 +30,6 @@ func Example() error {
 			projectID,
 			logName,
 		),
-		protolog.LoggerOptions{},
 	)
 	logger.Infoln("Hello from protolog!")
 	return nil

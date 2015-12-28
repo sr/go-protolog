@@ -33,11 +33,9 @@ var (
 	// DiscardPusher is a Pusher that discards all logs.
 	DiscardPusher = discardPusherInstance
 	// DiscardLogger is a Logger that discards all logs.
-	DiscardLogger = NewLogger(DiscardPusher, LoggerOptions{})
+	DiscardLogger = NewLogger(DiscardPusher)
 
-	defaultMarshallerOptions = MarshallerOptions{}
-
-	globalLogger            = NewLogger(NewTextWritePusher(os.Stderr, MarshallerOptions{}), LoggerOptions{})
+	globalLogger            = NewLogger(NewTextWritePusher(os.Stderr))
 	globalHooks             = make([]GlobalHook, 0)
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
@@ -168,15 +166,10 @@ func (g *GoEntry) ToEntry() (*Entry, error) {
 
 // String defaults a string representation of the GoEntry.
 func (g *GoEntry) String() string {
-	return g.FullString(defaultMarshallerOptions)
-}
-
-// FullString returns a string representation of the GoEntry using the given MarshallerOptions.
-func (g *GoEntry) FullString(options MarshallerOptions) string {
 	if g == nil {
 		return ""
 	}
-	data, err := textMarshalGoEntry(g, options)
+	data, err := textMarshalGoEntry(g, defaultTextMarshallerOptions)
 	if err != nil {
 		return ""
 	}
@@ -208,17 +201,40 @@ type ErrorHandler interface {
 	Handle(err error)
 }
 
-// LoggerOptions defines options for the Logger constructor.
-type LoggerOptions struct {
-	EnableID     bool
-	IDAllocator  IDAllocator
-	Timer        Timer
-	ErrorHandler ErrorHandler
+// LoggerOption is an option for the Logger constructor.
+type LoggerOption func(*logger)
+
+// LoggerWithIDEnabled enables IDs for the Logger.
+func LoggerWithIDEnabled() LoggerOption {
+	return func(logger *logger) {
+		logger.enableID = true
+	}
+}
+
+// LoggerWithIDAllocator uses the IDAllocator for the Logger.
+func LoggerWithIDAllocator(idAllocator IDAllocator) LoggerOption {
+	return func(logger *logger) {
+		logger.idAllocator = idAllocator
+	}
+}
+
+// LoggerWithTimer uses the Timer for the Logger.
+func LoggerWithTimer(timer Timer) LoggerOption {
+	return func(logger *logger) {
+		logger.timer = timer
+	}
+}
+
+// LoggerWithErrorHandler uses the ErrorHandler for the Logger.
+func LoggerWithErrorHandler(errorHandler ErrorHandler) LoggerOption {
+	return func(logger *logger) {
+		logger.errorHandler = errorHandler
+	}
 }
 
 // NewLogger constructs a new Logger using the given Pusher.
-func NewLogger(pusher Pusher, options LoggerOptions) Logger {
-	return newLogger(pusher, options)
+func NewLogger(pusher Pusher, options ...LoggerOption) Logger {
+	return newLogger(pusher, options...)
 }
 
 // Marshaller marshals Entry objects to be written.
@@ -226,26 +242,36 @@ type Marshaller interface {
 	Marshal(goEntry *GoEntry) ([]byte, error)
 }
 
-// WritePusherOptions defines options for constructing a new write Pusher.
-type WritePusherOptions struct {
-	// By default, DelimitedMarshaller is used.
-	Marshaller Marshaller
-	Newline    bool
+// WritePusherOption is an option for constructing a new write Pusher.
+type WritePusherOption func(*writePusher)
+
+// WritePusherWithMarshaller uses the Marshaller for the write Pusher.
+//
+// By default, DelimitedMarshaller is used.
+func WritePusherWithMarshaller(marshaller Marshaller) WritePusherOption {
+	return func(writePusher *writePusher) {
+		writePusher.marshaller = marshaller
+	}
+}
+
+// WritePusherAddNewlines adds newlines after each marshalled Entry.
+func WritePusherAddNewlines() WritePusherOption {
+	return func(writePusher *writePusher) {
+		writePusher.newline = true
+	}
 }
 
 // NewWritePusher constructs a new Pusher that writes to the given io.Writer.
-func NewWritePusher(writer io.Writer, options WritePusherOptions) Pusher {
-	return newWritePusher(writer, options)
+func NewWritePusher(writer io.Writer, options ...WritePusherOption) Pusher {
+	return newWritePusher(writer, options...)
 }
 
 // NewTextWritePusher constructs a new Pusher using a TextMarshaller and newlines.
-func NewTextWritePusher(writer io.Writer, marshallerOptions MarshallerOptions) Pusher {
+func NewTextWritePusher(writer io.Writer, textMarshallerOptions ...TextMarshallerOption) Pusher {
 	return NewWritePusher(
 		writer,
-		WritePusherOptions{
-			Marshaller: NewTextMarshaller(marshallerOptions),
-			Newline:    true,
-		},
+		WritePusherWithMarshaller(NewTextMarshaller(textMarshallerOptions...)),
+		WritePusherAddNewlines(),
 	)
 }
 
@@ -260,32 +286,51 @@ type Unmarshaller interface {
 	Unmarshal(reader io.Reader, goEntry *GoEntry) error
 }
 
-// ReadPullerOptions defines options for a read Puller.
-type ReadPullerOptions struct {
-	// By default, DelimitedUnmarshaller is used
-	Unmarshaller Unmarshaller
+// ReadPullerOption is an option for a read Puller.
+type ReadPullerOption func(*readPuller)
+
+// ReadPullerWithUnmarshaller uses the Unmarshaller for the read Puller.
+//
+// By default, DelimitedUnmarshaller is used.
+func ReadPullerWithUnmarshaller(unmarshaller Unmarshaller) ReadPullerOption {
+	return func(readPuller *readPuller) {
+		readPuller.unmarshaller = unmarshaller
+	}
 }
 
-// NewReadPuller constructs a new Puller that reads from the given Reader
-// and decodes using the given Unmarshaller.
-func NewReadPuller(reader io.Reader, options ReadPullerOptions) Puller {
-	return newReadPuller(reader, options)
+// NewReadPuller constructs a new Puller that reads from the given Reader.
+func NewReadPuller(reader io.Reader, options ...ReadPullerOption) Puller {
+	return newReadPuller(reader, options...)
 }
 
-// MarshallerOptions provides options for creating Marshallers.
-type MarshallerOptions struct {
-	// DisableTime will suppress the printing of Entry Timestamps.
-	DisableTime bool
-	// DisableLevel will suppress the printing of Entry Levels.
-	DisableLevel bool
-	// DisableContexts will suppress the printing of Entry contexts.
-	DisableContexts bool
+// TextMarshallerOption is an option for creating Marshallers.
+type TextMarshallerOption func(*textMarshallerOptions)
+
+// TextMarshallerDisableTime will suppress the printing of Entry Timestamps.
+func TextMarshallerDisableTime() TextMarshallerOption {
+	return func(textMarshallerOptions *textMarshallerOptions) {
+		textMarshallerOptions.disableTime = true
+	}
+}
+
+// TextMarshallerDisableLevel will suppress the printing of Entry Levels.
+func TextMarshallerDisableLevel() TextMarshallerOption {
+	return func(textMarshallerOptions *textMarshallerOptions) {
+		textMarshallerOptions.disableLevel = true
+	}
+}
+
+// TextMarshallerDisableContexts will suppress the printing of Entry contexts.
+func TextMarshallerDisableContexts() TextMarshallerOption {
+	return func(textMarshallerOptions *textMarshallerOptions) {
+		textMarshallerOptions.disableContexts = true
+	}
 }
 
 // NewTextMarshaller constructs a new Marshaller that produces human-readable
 // marshalled Entry objects. This Marshaller is currently inefficient.
-func NewTextMarshaller(options MarshallerOptions) Marshaller {
-	return newTextMarshaller(options)
+func NewTextMarshaller(options ...TextMarshallerOption) Marshaller {
+	return newTextMarshaller(options...)
 }
 
 // NewMultiPusher constructs a new Pusher that calls all the given Pushers.

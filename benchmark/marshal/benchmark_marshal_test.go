@@ -16,7 +16,7 @@ func BenchmarkDelimitedMarshaller(b *testing.B) {
 }
 
 func BenchmarkDefaultTextMarshaller(b *testing.B) {
-	benchmarkMarshaller(b, protolog.NewTextMarshaller(protolog.MarshallerOptions{}))
+	benchmarkMarshaller(b, protolog.NewTextMarshaller())
 }
 
 func benchmarkMarshaller(b *testing.B, marshaller protolog.Marshaller) {

@@ -283,9 +283,7 @@ func setupLogger(b *testing.B) (string, *os.File, protolog.Logger) {
 	logger := protolog.NewLogger(
 		protolog.NewWritePusher(
 			file,
-			protolog.WritePusherOptions{},
 		),
-		protolog.LoggerOptions{},
 	).AtLevel(protolog.Level_LEVEL_INFO)
 	return tempDir, file, logger
 }
@@ -296,13 +294,9 @@ func setupLoggerText(b *testing.B) (string, *os.File, protolog.Logger) {
 	file, err := os.Create(filepath.Join(tempDir, "log.out"))
 	require.NoError(b, err)
 	logger := protolog.NewLogger(
-		protolog.NewWritePusher(
+		protolog.NewTextWritePusher(
 			file,
-			protolog.WritePusherOptions{
-				Marshaller: protolog.NewTextMarshaller(protolog.MarshallerOptions{}),
-			},
 		),
-		protolog.LoggerOptions{},
 	).AtLevel(protolog.Level_LEVEL_INFO)
 	return tempDir, file, logger
 }
@@ -392,7 +386,6 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 					},
 				},
 			),
-			protolog.LoggerOptions{},
 		),
 	)
 	b.StartTimer()
@@ -419,7 +412,7 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 
 func runBenchmarkGLog(b *testing.B, run func(), thread bool) {
 	b.StopTimer()
-	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher(protolog_glog.PusherOptions{}), protolog.LoggerOptions{}))
+	protolog.SetLogger(protolog.NewLogger(protolog_glog.NewPusher(protolog_glog.PusherOptions{})))
 	b.StartTimer()
 	if thread {
 		var wg sync.WaitGroup

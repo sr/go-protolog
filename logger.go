@@ -19,27 +19,21 @@ type logger struct {
 	genericFields *Fields
 }
 
-func newLogger(pusher Pusher, options LoggerOptions) *logger {
+func newLogger(pusher Pusher, options ...LoggerOption) *logger {
 	logger := &logger{
 		pusher,
-		options.EnableID,
-		options.IDAllocator,
-		options.Timer,
-		options.ErrorHandler,
+		false,
+		DefaultIDAllocator,
+		DefaultTimer,
+		DefaultErrorHandler,
 		DefaultLevel,
 		make([]proto.Message, 0),
 		&Fields{
 			Value: make(map[string]string, 0),
 		},
 	}
-	if logger.idAllocator == nil {
-		logger.idAllocator = DefaultIDAllocator
-	}
-	if logger.timer == nil {
-		logger.timer = DefaultTimer
-	}
-	if logger.errorHandler == nil {
-		logger.errorHandler = DefaultErrorHandler
+	for _, option := range options {
+		option(logger)
 	}
 	return logger
 }

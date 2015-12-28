@@ -7,13 +7,13 @@ type readPuller struct {
 	unmarshaller Unmarshaller
 }
 
-func newReadPuller(reader io.Reader, options ReadPullerOptions) *readPuller {
+func newReadPuller(reader io.Reader, options ...ReadPullerOption) *readPuller {
 	readPuller := &readPuller{
 		reader,
-		options.Unmarshaller,
+		DelimitedUnmarshaller,
 	}
-	if readPuller.unmarshaller == nil {
-		readPuller.unmarshaller = DelimitedUnmarshaller
+	for _, option := range options {
+		option(readPuller)
 	}
 	return readPuller
 }

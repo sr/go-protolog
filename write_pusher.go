@@ -17,15 +17,15 @@ type writePusher struct {
 	lock       *sync.Mutex
 }
 
-func newWritePusher(writer io.Writer, options WritePusherOptions) *writePusher {
+func newWritePusher(writer io.Writer, options ...WritePusherOption) *writePusher {
 	writePusher := &writePusher{
 		writer,
-		options.Marshaller,
-		options.Newline,
+		DelimitedMarshaller,
+		false,
 		&sync.Mutex{},
 	}
-	if writePusher.marshaller == nil {
-		writePusher.marshaller = DelimitedMarshaller
+	for _, option := range options {
+		option(writePusher)
 	}
 	return writePusher
 }
