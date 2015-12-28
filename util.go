@@ -1,6 +1,7 @@
 package protolog
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"reflect"
@@ -92,4 +93,15 @@ func messageName(message proto.Message) string {
 		return ""
 	}
 	return proto.MessageName(message)
+}
+
+type stdlibJSONMarshaller struct{}
+
+func (s *stdlibJSONMarshaller) Marshal(writer io.Writer, message proto.Message) error {
+	data, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	_, err = writer.Write(data)
+	return err
 }
