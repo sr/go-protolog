@@ -212,7 +212,7 @@ func (g *Entry) String() string {
 	if g == nil {
 		return ""
 	}
-	data, err := textMarshalEntry(g, false, false, false)
+	data, err := textMarshalEntry(g, false, false, false, false)
 	if err != nil {
 		return ""
 	}
@@ -346,6 +346,13 @@ func NewReadPuller(reader io.Reader, options ...ReadPullerOption) Puller {
 	return newReadPuller(reader, options...)
 }
 
+// TextMarshaller is a Marshaller used for text.
+type TextMarshaller interface {
+	Marshaller
+	WithColors() TextMarshaller
+	WithoutColors() TextMarshaller
+}
+
 // TextMarshallerOption is an option for creating Marshallers.
 type TextMarshallerOption func(*textMarshaller)
 
@@ -372,7 +379,7 @@ func TextMarshallerDisableContexts() TextMarshallerOption {
 
 // NewTextMarshaller constructs a new Marshaller that produces human-readable
 // marshalled Entry objects. This Marshaller is currently inefficient.
-func NewTextMarshaller(options ...TextMarshallerOption) Marshaller {
+func NewTextMarshaller(options ...TextMarshallerOption) TextMarshaller {
 	return newTextMarshaller(options...)
 }
 

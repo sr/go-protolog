@@ -8,17 +8,32 @@ import (
 
 	"go.pedge.io/protolog/pb"
 
+	"github.com/fatih/color"
 	"github.com/golang/protobuf/proto"
+)
+
+var (
+	levelToColorString = map[Level]string{
+		LevelNone:  color.BlueString(LevelNone.String()),
+		LevelDebug: color.WhiteString(LevelDebug.String()),
+		LevelInfo:  color.BlueString(LevelInfo.String()),
+		LevelWarn:  color.YellowString(LevelWarn.String()),
+		LevelError: color.RedString(LevelError.String()),
+		LevelFatal: color.RedString(LevelFatal.String()),
+		LevelPanic: color.RedString(LevelPanic.String()),
+	}
 )
 
 type textMarshaller struct {
 	disableTime     bool
 	disableLevel    bool
 	disableContexts bool
+	colorize        bool
 }
 
 func newTextMarshaller(options ...TextMarshallerOption) *textMarshaller {
 	textMarshaller := &textMarshaller{
+		false,
 		false,
 		false,
 		false,
@@ -29,8 +44,26 @@ func newTextMarshaller(options ...TextMarshallerOption) *textMarshaller {
 	return textMarshaller
 }
 
+func (t *textMarshaller) WithColors() TextMarshaller {
+	return &textMarshaller{
+		t.disableTime,
+		t.disableLevel,
+		t.disableContexts,
+		true,
+	}
+}
+
+func (t *textMarshaller) WithoutColors() TextMarshaller {
+	return &textMarshaller{
+		t.disableTime,
+		t.disableLevel,
+		t.disableContexts,
+		false,
+	}
+}
+
 func (t *textMarshaller) Marshal(entry *Entry) ([]byte, error) {
-	return textMarshalEntry(entry, t.disableTime, t.disableLevel, t.disableContexts)
+	return textMarshalEntry(entry, t.disableTime, t.disableLevel, t.disableContexts, t.colorize)
 }
 
 func textMarshalEntry(
@@ -38,6 +71,7 @@ func textMarshalEntry(
 	disableTime bool,
 	disableLevel bool,
 	disableContexts bool,
+	colorize bool,
 ) ([]byte, error) {
 	buffer := bytes.NewBuffer(nil)
 	if entry.ID != "" {
@@ -49,11 +83,15 @@ func textMarshalEntry(
 		_ = buffer.WriteByte(' ')
 	}
 	if !disableLevel {
-		levelString := entry.Level.String()
-		_, _ = buffer.WriteString(levelString)
-		if len(levelString) == 4 {
-			_, _ = buffer.WriteString("  ")
+		var levelString string
+		if colorize {
+			levelString = levelToColorString[entry.Level]
 		} else {
+			levelString = entry.Level.String()
+		}
+		_, _ = buffer.WriteString(levelString)
+		_ = buffer.WriteByte(' ')
+		if len(levelString) == 4 {
 			_ = buffer.WriteByte(' ')
 		}
 	}

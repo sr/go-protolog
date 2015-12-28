@@ -3,7 +3,10 @@ package protolog
 import (
 	"bytes"
 	"io"
+	"os"
 	"sync"
+
+	"github.com/mattn/go-isatty"
 )
 
 var (
@@ -26,6 +29,13 @@ func newWritePusher(writer io.Writer, options ...WritePusherOption) *writePusher
 	}
 	for _, option := range options {
 		option(writePusher)
+	}
+	if file, ok := writer.(*os.File); ok {
+		if textMarshaller, ok := writePusher.marshaller.(TextMarshaller); ok {
+			if isatty.IsTerminal(file.Fd()) {
+				writePusher.marshaller = textMarshaller.WithColors()
+			}
+		}
 	}
 	return writePusher
 }
