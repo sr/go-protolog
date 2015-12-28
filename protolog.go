@@ -5,7 +5,6 @@ package protolog // import "go.pedge.io/protolog"
 
 import (
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"sync"
@@ -31,8 +30,10 @@ var (
 	// DelimitedUnmarshaller is an Unmarshaller that uses the protocol buffers write delimited scheme.
 	DelimitedUnmarshaller = &delimitedUnmarshaller{}
 
+	// DiscardPusher is a Pusher that discards all logs.
+	DiscardPusher = discardPusherInstance
 	// DiscardLogger is a Logger that discards all logs.
-	DiscardLogger = NewLogger(NewTextWritePusher(NewWriterFlusher(ioutil.Discard), MarshallerOptions{}), LoggerOptions{})
+	DiscardLogger = NewLogger(DiscardPusher, LoggerOptions{})
 
 	defaultMarshallerOptions = MarshallerOptions{}
 
