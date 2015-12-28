@@ -1,4 +1,4 @@
-package gcloud
+package protolog_gcloud
 
 import (
 	"time"

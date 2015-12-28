@@ -1,4 +1,4 @@
-package glog
+package protolog_glog
 
 import (
 	"github.com/golang/glog"

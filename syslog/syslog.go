@@ -1,7 +1,8 @@
 /*
-Package syslog defines functionality for integration with syslog.
+Package protolog_syslog defines functionality for integration with syslog.
 */
-package syslog // import "go.pedge.io/protolog/syslog"
+package protolog_syslog // import "go.pedge.io/protolog/syslog"
+
 import (
 	"log/syslog"
 

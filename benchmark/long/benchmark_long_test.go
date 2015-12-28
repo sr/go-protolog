@@ -8,8 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	stdlogrus "github.com/Sirupsen/logrus"
-	stdglog "github.com/golang/glog"
+	"github.com/Sirupsen/logrus"
+	"github.com/golang/glog"
 	"github.com/stretchr/testify/require"
 	"go.pedge.io/google-protobuf"
 	"go.pedge.io/protolog"
@@ -64,7 +64,7 @@ func BenchmarkProtoGLog(b *testing.B) {
 }
 
 func BenchmarkProtoStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infoln(foo) }, false)
+	runBenchmarkStdGLog(b, func() { glog.Infoln(foo) }, false)
 }
 
 func BenchmarkThreadProto(b *testing.B) {
@@ -92,7 +92,7 @@ func BenchmarkThreadProtoGLog(b *testing.B) {
 }
 
 func BenchmarkThreadProtoStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infoln(foo) }, true)
+	runBenchmarkStdGLog(b, func() { glog.Infoln(foo) }, true)
 }
 
 func BenchmarkFieldProto(b *testing.B) {
@@ -104,7 +104,7 @@ func BenchmarkFieldProtoText(b *testing.B) {
 }
 
 func BenchmarkFieldProtoStdLogrus(b *testing.B) {
-	runBenchmarkStd(b, setupStdLogrusLogger, func(logger benchLogger) { logger.(*stdlogrus.Logger).WithField("key", "value").Println(foo) }, false)
+	runBenchmarkStd(b, setupStdLogrusLogger, func(logger benchLogger) { logger.(*logrus.Logger).WithField("key", "value").Println(foo) }, false)
 }
 
 func BenchmarkString(b *testing.B) {
@@ -132,7 +132,7 @@ func BenchmarkStringGLog(b *testing.B) {
 }
 
 func BenchmarkStringStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infoln(fooString) }, false)
+	runBenchmarkStdGLog(b, func() { glog.Infoln(fooString) }, false)
 }
 
 func BenchmarkThreadString(b *testing.B) {
@@ -160,7 +160,7 @@ func BenchmarkThreadStringGLog(b *testing.B) {
 }
 
 func BenchmarkThreadStringStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infoln(fooString) }, true)
+	runBenchmarkStdGLog(b, func() { glog.Infoln(fooString) }, true)
 }
 
 func BenchmarkFreeformf(b *testing.B) {
@@ -188,7 +188,7 @@ func BenchmarkFreeformfGLog(b *testing.B) {
 }
 
 func BenchmarkFreeformfStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infof("%s %d\n", s, d) }, false)
+	runBenchmarkStdGLog(b, func() { glog.Infof("%s %d\n", s, d) }, false)
 }
 
 func BenchmarkThreadFreeformf(b *testing.B) {
@@ -216,7 +216,7 @@ func BenchmarkThreadFreeformfGLog(b *testing.B) {
 }
 
 func BenchmarkThreadFreeformfStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infof("%s %d\n", s, d) }, true)
+	runBenchmarkStdGLog(b, func() { glog.Infof("%s %d\n", s, d) }, true)
 }
 
 func BenchmarkFreeformln(b *testing.B) {
@@ -244,7 +244,7 @@ func BenchmarkFreeformlnGLog(b *testing.B) {
 }
 
 func BenchmarkFreeformlnStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infoln(arg1, arg2) }, true)
+	runBenchmarkStdGLog(b, func() { glog.Infoln(arg1, arg2) }, true)
 }
 
 func BenchmarkThreadFreeformln(b *testing.B) {
@@ -272,7 +272,7 @@ func BenchmarkThreadFreeformlnGLog(b *testing.B) {
 }
 
 func BenchmarkThreadFreeformlnStdGLog(b *testing.B) {
-	runBenchmarkStdGLog(b, func() { stdglog.Infoln(arg1, arg2) }, true)
+	runBenchmarkStdGLog(b, func() { glog.Infoln(arg1, arg2) }, true)
 }
 
 func setupLogger(b *testing.B) (string, *os.File, protolog.Logger) {
@@ -321,7 +321,7 @@ func setupStdLogrusLogger(b *testing.B) (string, *os.File, benchLogger) {
 	require.NoError(b, err)
 	file, err := os.Create(filepath.Join(tempDir, "log.out"))
 	require.NoError(b, err)
-	logger := stdlogrus.New()
+	logger := logrus.New()
 	logger.Out = file
 	return tempDir, file, logger
 }
@@ -384,10 +384,10 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 	require.NoError(b, err)
 	protolog.SetLogger(
 		protolog.NewLogger(
-			logrus.NewPusher(
-				logrus.PusherOptions{
+			protolog_logrus.NewPusher(
+				protolog_logrus.PusherOptions{
 					Out: protolog.NewFileFlusher(file),
-					Formatter: &stdlogrus.TextFormatter{
+					Formatter: &logrus.TextFormatter{
 						ForceColors: true,
 					},
 				},
@@ -419,7 +419,7 @@ func runBenchmarkLogrus(b *testing.B, run func(), thread bool) {
 
 func runBenchmarkGLog(b *testing.B, run func(), thread bool) {
 	b.StopTimer()
-	protolog.SetLogger(protolog.NewLogger(glog.DefaultTextPusher, protolog.LoggerOptions{}))
+	protolog.SetLogger(protolog.NewLogger(protolog_glog.DefaultTextPusher, protolog.LoggerOptions{}))
 	b.StartTimer()
 	if thread {
 		var wg sync.WaitGroup
@@ -455,7 +455,7 @@ func runBenchmarkStdGLog(b *testing.B, run func(), thread bool) {
 			run()
 		}
 	}
-	stdglog.Flush()
+	glog.Flush()
 }
 
 type benchLogger interface {

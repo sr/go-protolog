@@ -1,7 +1,7 @@
 /*
-Package glog defines functionality for integration with glog.
+Package protolog_glog defines functionality for integration with glog.
 */
-package glog // import "go.pedge.io/protolog/glog"
+package protolog_glog // import "go.pedge.io/protolog/glog"
 
 import (
 	"flag"

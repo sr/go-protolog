@@ -1,7 +1,7 @@
 /*
-Package logrus defines functionality for integration with Logrus.
+Package protolog_logrus defines functionality for integration with Logrus.
 */
-package logrus // import "go.pedge.io/protolog/logrus"
+package protolog_logrus // import "go.pedge.io/protolog/logrus"
 
 import (
 	"github.com/Sirupsen/logrus"

@@ -1,4 +1,4 @@
-package syslog
+package protolog_syslog
 
 import (
 	"log/syslog"

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	stdlogrus "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"go.pedge.io/protolog"
 	"go.pedge.io/protolog/glog"
 	"go.pedge.io/protolog/logrus"
@@ -108,16 +108,16 @@ func TestPrintSomeStuff(t *testing.T) {
 }
 
 func TestPrintSomeStuffLogrus(t *testing.T) {
-	protolog.SetLogger(protolog.NewLogger(logrus.DefaultPusher, protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
+	protolog.SetLogger(protolog.NewLogger(protolog_logrus.DefaultPusher, protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 
 func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 	protolog.SetLogger(
 		protolog.NewLogger(
-			logrus.NewPusher(
-				logrus.PusherOptions{
-					Formatter: &stdlogrus.TextFormatter{
+			protolog_logrus.NewPusher(
+				protolog_logrus.PusherOptions{
+					Formatter: &logrus.TextFormatter{
 						ForceColors: true,
 					},
 				},
@@ -129,8 +129,8 @@ func TestPrintSomeStuffLogrusForceColors(t *testing.T) {
 }
 
 func TestPrintSomeStuffGLog(t *testing.T) {
-	require.NoError(t, glog.LogToStderr())
-	protolog.SetLogger(protolog.NewLogger(glog.DefaultTextPusher, protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
+	require.NoError(t, protolog_glog.LogToStderr())
+	protolog.SetLogger(protolog.NewLogger(protolog_glog.DefaultTextPusher, protolog.LoggerOptions{Level: protolog.Level_LEVEL_DEBUG}))
 	testPrintSomeStuff(t, protolog.GlobalLogger())
 }
 

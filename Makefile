@@ -18,8 +18,8 @@ build: deps
 lint: testdeps
 	go get -v github.com/golang/lint/golint
 	for file in $$(find . -name '*.go' | grep -v '\.pb.go$$' | grep -v '\.pb.log.go$$' | grep -v 'testing/' | grep -v 'benchmark/'); do \
-		golint $$file; \
-		if [ -n "$$(golint $$file)" ]; then \
+		golint $$file | grep -v underscore; \
+		if [ -n "$$(golint $$file | grep -v underscore)" ]; then \
 			exit 1; \
 		fi; \
 	done

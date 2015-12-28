@@ -1,4 +1,4 @@
-package gcloud_test
+package protolog_gcloud_test
 
 import (
 	"os"
@@ -25,7 +25,7 @@ func Example() error {
 		return err
 	}
 	logger := protolog.NewLogger(
-		gcloud.NewPusher(
+		protolog_gcloud.NewPusher(
 			service.Projects.Logs.Entries,
 			projectID,
 			logName,
