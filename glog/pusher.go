@@ -24,7 +24,7 @@ type pusher struct {
 func newPusher(options PusherOptions) *pusher {
 	marshaller := options.Marshaller
 	if marshaller == nil {
-		marshaller = protolog.DefaultMarshaller
+		marshaller = DefaultTextMarshaller
 	}
 	return &pusher{marshaller}
 }

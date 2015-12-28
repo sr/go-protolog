@@ -13,7 +13,7 @@ func newReadPuller(reader io.Reader, options ReadPullerOptions) *readPuller {
 		options.Unmarshaller,
 	}
 	if readPuller.unmarshaller == nil {
-		readPuller.unmarshaller = DefaultUnmarshaller
+		readPuller.unmarshaller = DelimitedUnmarshaller
 	}
 	return readPuller
 }

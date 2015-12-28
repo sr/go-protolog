@@ -20,12 +20,11 @@ var (
 
 	// DefaultPusher is the default glog Pusher.
 	DefaultPusher = NewPusher(PusherOptions{})
-	// DefaultTextPusher is the default glog text Pusher.
-	DefaultTextPusher = NewPusher(PusherOptions{Marshaller: DefaultTextMarshaller})
 )
 
 // PusherOptions defines options for constructing a new glog protolog.Pusher.
 type PusherOptions struct {
+	// By default, DefaultTextMarshaller is used.
 	Marshaller protolog.Marshaller
 }
 

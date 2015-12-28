@@ -42,9 +42,9 @@ func (e *errorHandler) Handle(err error) {
 	panic(err.Error())
 }
 
-type marshaller struct{}
+type delimitedMarshaller struct{}
 
-func (m *marshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
+func (m *delimitedMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
 	entry, err := goEntry.ToEntry()
 	if err != nil {
 		return nil, err
@@ -56,9 +56,9 @@ func (m *marshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-type unmarshaller struct{}
+type delimitedUnmarshaller struct{}
 
-func (u *unmarshaller) Unmarshal(reader io.Reader, goEntry *GoEntry) error {
+func (u *delimitedUnmarshaller) Unmarshal(reader io.Reader, goEntry *GoEntry) error {
 	entry := &Entry{}
 	if _, err := pbutil.ReadDelimited(reader, entry); err != nil {
 		return err

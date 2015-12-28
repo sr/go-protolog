@@ -25,17 +25,16 @@ var (
 	DefaultTimer = &timer{}
 	// DefaultErrorHandler is the default ErrorHandler.
 	DefaultErrorHandler = &errorHandler{}
-	// DefaultMarshaller is the default Marshaller.
-	DefaultMarshaller = &marshaller{}
-	// DefaultUnmarshaller is the default Unmarshaller.
-	DefaultUnmarshaller = &unmarshaller{}
+
+	// DelimitedMarshaller is a Marshaller that uses the protocol buffers write delimited scheme.
+	DelimitedMarshaller = &delimitedMarshaller{}
 	// DefaultTextMarshaller is the default text Marshaller.
 	DefaultTextMarshaller = NewTextMarshaller(MarshallerOptions{})
+	// DelimitedUnmarshaller is an Unmarshaller that uses the protocol buffers write delimited scheme.
+	DelimitedUnmarshaller = &delimitedUnmarshaller{}
 
 	// DiscardLogger is a Logger that discards all logs.
 	DiscardLogger = NewLogger(NewDefaultTextWritePusher(NewWriterFlusher(ioutil.Discard)), LoggerOptions{})
-	// StdlibJSONMarshaller is a JSONMarshaller that uses the stdlib's json.Marshal function.
-	StdlibJSONMarshaller = &stdlibJSONMarshaller{}
 
 	defaultMarshallerOptions = MarshallerOptions{}
 
@@ -237,6 +236,7 @@ type Marshaller interface {
 
 // WritePusherOptions defines options for constructing a new write Pusher.
 type WritePusherOptions struct {
+	// By default, DelimitedMarshaller is used.
 	Marshaller Marshaller
 	Newline    bool
 }
@@ -270,6 +270,7 @@ type Unmarshaller interface {
 
 // ReadPullerOptions defines options for a read Puller.
 type ReadPullerOptions struct {
+	// By default, DelimitedUnmarshaller is used
 	Unmarshaller Unmarshaller
 }
 

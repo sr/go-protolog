@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func BenchmarkDefaultMarshaller(b *testing.B) {
-	benchmarkMarshaller(b, protolog.DefaultMarshaller)
+func BenchmarkDelimitedMarshaller(b *testing.B) {
+	benchmarkMarshaller(b, protolog.DelimitedMarshaller)
 }
 
 func BenchmarkDefaultTextMarshaller(b *testing.B) {
