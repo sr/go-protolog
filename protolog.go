@@ -196,8 +196,8 @@ type Logger interface {
 	Println(args ...interface{})
 }
 
-// GoEntry is the go equivalent of an Entry.
-type GoEntry struct {
+// Entry is the go equivalent of an Entry.
+type Entry struct {
 	// ID may not be set depending on LoggerOptions.
 	// it is up to the user to determine if ID is required.
 	ID       string          `json:"id,omitempty"`
@@ -207,12 +207,12 @@ type GoEntry struct {
 	Event    proto.Message   `json:"event,omitempty"`
 }
 
-// String defaults a string representation of the GoEntry.
-func (g *GoEntry) String() string {
+// String defaults a string representation of the Entry.
+func (g *Entry) String() string {
 	if g == nil {
 		return ""
 	}
-	data, err := textMarshalGoEntry(g, defaultTextMarshallerOptions)
+	data, err := textMarshalEntry(g, defaultTextMarshallerOptions)
 	if err != nil {
 		return ""
 	}
@@ -222,7 +222,7 @@ func (g *GoEntry) String() string {
 // Pusher is the interface used to push Entry objects to a persistent store.
 type Pusher interface {
 	Flusher
-	Push(goEntry *GoEntry) error
+	Push(entry *Entry) error
 }
 
 // IDAllocator allocates unique IDs for Entry objects. The default
@@ -282,7 +282,7 @@ func NewLogger(pusher Pusher, options ...LoggerOption) Logger {
 
 // Marshaller marshals Entry objects to be written.
 type Marshaller interface {
-	Marshal(goEntry *GoEntry) ([]byte, error)
+	Marshal(entry *Entry) ([]byte, error)
 }
 
 // WritePusherOption is an option for constructing a new write Pusher.
@@ -320,13 +320,13 @@ func NewTextWritePusher(writer io.Writer, textMarshallerOptions ...TextMarshalle
 
 // Puller pulls Entry objects from a persistent store.
 type Puller interface {
-	Pull() (*GoEntry, error)
+	Pull() (*Entry, error)
 }
 
 // Unmarshaller unmarshalls a marshalled Entry object. At the end
 // of a stream, Unmarshaller will return io.EOF.
 type Unmarshaller interface {
-	Unmarshal(reader io.Reader, goEntry *GoEntry) error
+	Unmarshal(reader io.Reader, entry *Entry) error
 }
 
 // ReadPullerOption is an option for a read Puller.

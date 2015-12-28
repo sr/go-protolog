@@ -225,16 +225,16 @@ func (l *logger) printWithError(level Level, event proto.Message) error {
 	if len(l.genericFields.Value) > 0 {
 		contexts = append(contexts, l.genericFields)
 	}
-	goEntry := &GoEntry{
+	entry := &Entry{
 		Level:    level,
 		Time:     l.timer.Now(),
 		Contexts: contexts,
 		Event:    event,
 	}
 	if l.enableID {
-		goEntry.ID = l.idAllocator.Allocate()
+		entry.ID = l.idAllocator.Allocate()
 	}
-	return l.pusher.Push(goEntry)
+	return l.pusher.Push(entry)
 }
 
 func (l *logger) isLoggedLevel(level Level) bool {

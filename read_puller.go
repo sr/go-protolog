@@ -18,10 +18,10 @@ func newReadPuller(reader io.Reader, options ...ReadPullerOption) *readPuller {
 	return readPuller
 }
 
-func (r *readPuller) Pull() (*GoEntry, error) {
-	goEntry := &GoEntry{}
-	if err := r.unmarshaller.Unmarshal(r.reader, goEntry); err != nil {
+func (r *readPuller) Pull() (*Entry, error) {
+	entry := &Entry{}
+	if err := r.unmarshaller.Unmarshal(r.reader, entry); err != nil {
 		return nil, err
 	}
-	return goEntry, nil
+	return entry, nil
 }

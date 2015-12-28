@@ -37,22 +37,22 @@ func newTextMarshaller(options ...TextMarshallerOption) *textMarshaller {
 	return &textMarshaller{textMarshallerOptions}
 }
 
-func (t *textMarshaller) Marshal(goEntry *GoEntry) ([]byte, error) {
-	return textMarshalGoEntry(goEntry, t.options)
+func (t *textMarshaller) Marshal(entry *Entry) ([]byte, error) {
+	return textMarshalEntry(entry, t.options)
 }
 
-func textMarshalGoEntry(goEntry *GoEntry, options textMarshallerOptions) ([]byte, error) {
+func textMarshalEntry(entry *Entry, options textMarshallerOptions) ([]byte, error) {
 	buffer := bytes.NewBuffer(nil)
-	if goEntry.ID != "" {
-		_, _ = buffer.WriteString(goEntry.ID)
+	if entry.ID != "" {
+		_, _ = buffer.WriteString(entry.ID)
 		_ = buffer.WriteByte(' ')
 	}
 	if !options.disableTime {
-		_, _ = buffer.WriteString(goEntry.Time.Format(time.RFC3339))
+		_, _ = buffer.WriteString(entry.Time.Format(time.RFC3339))
 		_ = buffer.WriteByte(' ')
 	}
 	if !options.disableLevel {
-		levelString := goEntry.Level.String()
+		levelString := entry.Level.String()
 		_, _ = buffer.WriteString(levelString)
 		if len(levelString) == 4 {
 			_, _ = buffer.WriteString("  ")
@@ -60,22 +60,22 @@ func textMarshalGoEntry(goEntry *GoEntry, options textMarshallerOptions) ([]byte
 			_ = buffer.WriteByte(' ')
 		}
 	}
-	if goEntry.Event != nil {
-		switch goEntry.Event.(type) {
+	if entry.Event != nil {
+		switch entry.Event.(type) {
 		case *protologpb.Event:
-			_, _ = buffer.WriteString(goEntry.Event.(*protologpb.Event).Message)
+			_, _ = buffer.WriteString(entry.Event.(*protologpb.Event).Message)
 		case *protologpb.WriterOutput:
-			_, _ = buffer.Write(trimRightSpaceBytes(goEntry.Event.(*protologpb.WriterOutput).Value))
+			_, _ = buffer.Write(trimRightSpaceBytes(entry.Event.(*protologpb.WriterOutput).Value))
 		default:
-			if err := textMarshalMessage(buffer, goEntry.Event); err != nil {
+			if err := textMarshalMessage(buffer, entry.Event); err != nil {
 				return nil, err
 			}
 		}
 	}
-	if len(goEntry.Contexts) > 0 && !options.disableContexts {
+	if len(entry.Contexts) > 0 && !options.disableContexts {
 		_, _ = buffer.WriteString(" contexts=[")
-		lenContexts := len(goEntry.Contexts)
-		for i, context := range goEntry.Contexts {
+		lenContexts := len(entry.Contexts)
+		for i, context := range entry.Contexts {
 			switch context.(type) {
 			case *protologpb.Fields:
 				data, err := json.Marshal(context.(*protologpb.Fields).Value)

@@ -10,6 +10,6 @@ func (d *discardPusher) Flush() error {
 	return nil
 }
 
-func (d *discardPusher) Push(_ *GoEntry) error {
+func (d *discardPusher) Push(_ *Entry) error {
 	return nil
 }

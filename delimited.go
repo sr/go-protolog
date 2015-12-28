@@ -36,7 +36,7 @@ var (
 
 type delimitedMarshaller struct{}
 
-func (m *delimitedMarshaller) Marshal(entry *GoEntry) ([]byte, error) {
+func (m *delimitedMarshaller) Marshal(entry *Entry) ([]byte, error) {
 	pbEntry, err := entryToPBEntry(entry)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (m *delimitedMarshaller) Marshal(entry *GoEntry) ([]byte, error) {
 
 type delimitedUnmarshaller struct{}
 
-func (u *delimitedUnmarshaller) Unmarshal(reader io.Reader, entry *GoEntry) error {
+func (u *delimitedUnmarshaller) Unmarshal(reader io.Reader, entry *Entry) error {
 	pbEntry := &protologpb.Entry{}
 	if _, err := pbutil.ReadDelimited(reader, pbEntry); err != nil {
 		return err
@@ -63,7 +63,7 @@ func (u *delimitedUnmarshaller) Unmarshal(reader io.Reader, entry *GoEntry) erro
 	return nil
 }
 
-func entryToPBEntry(entry *GoEntry) (*protologpb.Entry, error) {
+func entryToPBEntry(entry *Entry) (*protologpb.Entry, error) {
 	contexts, err := messagesToEntryMessages(entry.Contexts)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func entryToPBEntry(entry *GoEntry) (*protologpb.Entry, error) {
 	}, nil
 }
 
-func pbEntryToEntry(pbEntry *protologpb.Entry) (*GoEntry, error) {
+func pbEntryToEntry(pbEntry *protologpb.Entry) (*Entry, error) {
 	contexts, err := entryMessagesToMessages(pbEntry.Context)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func pbEntryToEntry(pbEntry *protologpb.Entry) (*GoEntry, error) {
 	if !ok {
 		return nil, fmt.Errorf("protolog: unknown level: %v", pbEntry.Level)
 	}
-	return &GoEntry{
+	return &Entry{
 		ID:       pbEntry.Id,
 		Level:    level,
 		Time:     prototime.TimestampToTime(pbEntry.Timestamp),

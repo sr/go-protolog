@@ -34,11 +34,11 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
-func (p *pusher) Push(goEntry *protolog.GoEntry) error {
-	data, err := p.marshaller.Marshal(goEntry)
+func (p *pusher) Push(entry *protolog.Entry) error {
+	data, err := p.marshaller.Marshal(entry)
 	if err != nil {
 		return err
 	}
-	levelToLogFunc[goEntry.Level](string(data))
+	levelToLogFunc[entry.Level](string(data))
 	return nil
 }

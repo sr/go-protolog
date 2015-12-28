@@ -40,8 +40,8 @@ func newPusher(
 	}
 }
 
-func (p *pusher) Push(goEntry *protolog.GoEntry) error {
-	id := goEntry.ID
+func (p *pusher) Push(entry *protolog.Entry) error {
+	id := entry.ID
 	if id == "" {
 		id = protolog.DefaultIDAllocator.Allocate()
 	}
@@ -52,11 +52,11 @@ func (p *pusher) Push(goEntry *protolog.GoEntry) error {
 			Entries: []*logging.LogEntry{
 				{
 					InsertId:      id,
-					StructPayload: goEntry,
+					StructPayload: entry,
 					Metadata: &logging.LogEntryMetadata{
 						ServiceName: customServiceName,
-						Severity:    severityName[goEntry.Level],
-						Timestamp:   goEntry.Time.Format(time.RFC3339),
+						Severity:    severityName[entry.Level],
+						Timestamp:   entry.Time.Format(time.RFC3339),
 					},
 				},
 			},

@@ -48,8 +48,8 @@ func newPusher(options PusherOptions) *pusher {
 	return &pusher{logger, &sync.Mutex{}, options}
 }
 
-func (p *pusher) Push(goEntry *protolog.GoEntry) error {
-	logrusEntry, err := p.getLogrusEntry(goEntry)
+func (p *pusher) Push(entry *protolog.Entry) error {
+	logrusEntry, err := p.getLogrusEntry(entry)
 	if err != nil {
 		return err
 	}
@@ -75,16 +75,16 @@ func (p *pusher) Flush() error {
 	return nil
 }
 
-func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error) {
+func (p *pusher) getLogrusEntry(entry *protolog.Entry) (*logrus.Entry, error) {
 	logrusEntry := logrus.NewEntry(p.logger)
-	logrusEntry.Time = goEntry.Time
-	logrusEntry.Level = levelToLogrusLevel[goEntry.Level]
+	logrusEntry.Time = entry.Time
+	logrusEntry.Level = levelToLogrusLevel[entry.Level]
 
-	if goEntry.ID != "" {
-		logrusEntry.Data["_id"] = goEntry.ID
+	if entry.ID != "" {
+		logrusEntry.Data["_id"] = entry.ID
 	}
 	if !p.options.DisableContexts {
-		for _, context := range goEntry.Contexts {
+		for _, context := range entry.Contexts {
 			if context == nil {
 				continue
 			}
@@ -102,15 +102,15 @@ func (p *pusher) getLogrusEntry(goEntry *protolog.GoEntry) (*logrus.Entry, error
 			}
 		}
 	}
-	if goEntry.Event != nil {
-		switch goEntry.Event.(type) {
+	if entry.Event != nil {
+		switch entry.Event.(type) {
 		case *protologpb.Event:
-			logrusEntry.Message = trimRightSpace(goEntry.Event.(*protologpb.Event).Message)
+			logrusEntry.Message = trimRightSpace(entry.Event.(*protologpb.Event).Message)
 		case *protologpb.WriterOutput:
-			logrusEntry.Message = trimRightSpace(string(goEntry.Event.(*protologpb.WriterOutput).Value))
+			logrusEntry.Message = trimRightSpace(string(entry.Event.(*protologpb.WriterOutput).Value))
 		default:
-			logrusEntry.Data["_event"] = proto.MessageName(goEntry.Event)
-			if err := addProtoMessage(logrusEntry, goEntry.Event); err != nil {
+			logrusEntry.Data["_event"] = proto.MessageName(entry.Event)
+			if err := addProtoMessage(logrusEntry, entry.Event); err != nil {
 				return nil, err
 			}
 		}

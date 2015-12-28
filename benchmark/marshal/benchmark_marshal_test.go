@@ -21,16 +21,16 @@ func BenchmarkDefaultTextMarshaller(b *testing.B) {
 
 func benchmarkMarshaller(b *testing.B, marshaller protolog.Marshaller) {
 	b.StopTimer()
-	goEntry := getBenchGoEntry()
-	_, err := marshaller.Marshal(goEntry)
+	entry := getBenchEntry()
+	_, err := marshaller.Marshal(entry)
 	require.NoError(b, err)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = marshaller.Marshal(goEntry)
+		_, _ = marshaller.Marshal(entry)
 	}
 }
 
-func getBenchGoEntry() *protolog.GoEntry {
+func getBenchEntry() *protolog.Entry {
 	foo := &protolog_testing.Foo{
 		StringField: "one",
 		Int32Field:  2,
@@ -47,7 +47,7 @@ func getBenchGoEntry() *protolog.GoEntry {
 			},
 		},
 	}
-	goEntry := &protolog.GoEntry{
+	entry := &protolog.Entry{
 		ID:    "123",
 		Level: protolog.LevelInfo,
 		Time:  time.Now().UTC(),
@@ -57,5 +57,5 @@ func getBenchGoEntry() *protolog.GoEntry {
 		},
 		Event: baz,
 	}
-	return goEntry
+	return entry
 }
