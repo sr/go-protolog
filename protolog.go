@@ -35,7 +35,12 @@ var (
 	// DiscardLogger is a Logger that discards all logs.
 	DiscardLogger = NewLogger(DiscardPusher)
 
-	globalLogger            = NewLogger(NewTextWritePusher(os.Stderr))
+	// DefaultPusher is the default Pusher.
+	DefaultPusher = NewTextWritePusher(os.Stderr)
+	// DefaultLogger is the default Logger.
+	DefaultLogger = NewLogger(DefaultPusher)
+
+	globalLogger            = DefaultLogger
 	globalHooks             = make([]GlobalHook, 0)
 	globalRedirectStdLogger = false
 	globalLock              = &sync.Mutex{}
