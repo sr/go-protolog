@@ -2,6 +2,18 @@
 // source: pb/protologpb.proto
 // DO NOT EDIT!
 
+/*
+Package protologpb is a generated protocol buffer package.
+
+It is generated from these files:
+	pb/protologpb.proto
+
+It has these top-level messages:
+	Fields
+	Event
+	WriterOutput
+	Entry
+*/
 package protologpb
 
 import proto "github.com/golang/protobuf/proto"

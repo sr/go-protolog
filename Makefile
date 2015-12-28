@@ -50,8 +50,8 @@ clean:
 proto:
 	go get -v go.pedge.io/protoeasy/cmd/protoeasy
 	go get -v go.pedge.io/pkg/cmd/strip-package-comments
-	protoeasy --go --grpc --grpc-gateway --go-import-path go.pedge.io/protolog .
-	find . -name *\.pb\*\.go | xargs strip-package-comments
+	protoeasy
+	strip-package-comments testing/testing.pb.go
 
 docker-build:
 	docker build -t quay.io/pedge/protolog .
