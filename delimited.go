@@ -6,11 +6,10 @@ import (
 	"io"
 	"reflect"
 
-	"go.pedge.io/proto/time"
-	"go.pedge.io/protolog/pb"
-
 	"github.com/golang/protobuf/proto"
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
+	"github.com/sr/protolog/pb"
+	"go.pedge.io/proto/time"
 )
 
 var (

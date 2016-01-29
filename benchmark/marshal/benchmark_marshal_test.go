@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 	"go.pedge.io/protolog/testing"
 
 	"github.com/stretchr/testify/require"

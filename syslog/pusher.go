@@ -3,7 +3,7 @@ package protolog_syslog
 import (
 	"log/syslog"
 
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 )
 
 var (

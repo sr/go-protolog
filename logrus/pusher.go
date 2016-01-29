@@ -10,7 +10,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 )
 
 var (

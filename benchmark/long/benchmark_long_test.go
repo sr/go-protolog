@@ -10,9 +10,9 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/golang/glog"
+	"github.com/sr/protolog"
 	"github.com/stretchr/testify/require"
 	"go.pedge.io/google-protobuf"
-	"go.pedge.io/protolog"
 	"go.pedge.io/protolog/glog"
 	"go.pedge.io/protolog/logrus"
 	"go.pedge.io/protolog/testing"

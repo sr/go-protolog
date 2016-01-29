@@ -3,7 +3,7 @@ package protolog_gcloud_test
 import (
 	"os"
 
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 	"go.pedge.io/protolog/gcloud"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"

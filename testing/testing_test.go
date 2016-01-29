@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 	"go.pedge.io/protolog/glog"
 	"go.pedge.io/protolog/logrus"
 

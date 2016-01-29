@@ -3,7 +3,7 @@ package protolog_gcloud
 import (
 	"time"
 
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 	"google.golang.org/api/logging/v1beta3"
 )
 

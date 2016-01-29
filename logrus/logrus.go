@@ -1,14 +1,14 @@
 /*
 Package protolog_logrus defines functionality for integration with Logrus.
 */
-package protolog_logrus // import "go.pedge.io/protolog/logrus"
+package protolog_logrus
 
 import (
 	"io"
 
 	"github.com/Sirupsen/logrus"
 
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 )
 
 // PusherOptions defines options for constructing a new Logrus protolog.Pusher.

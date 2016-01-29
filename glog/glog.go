@@ -1,12 +1,12 @@
 /*
 Package protolog_glog defines functionality for integration with glog.
 */
-package protolog_glog // import "go.pedge.io/protolog/glog"
+package protolog_glog
 
 import (
 	"flag"
 
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 )
 
 var (

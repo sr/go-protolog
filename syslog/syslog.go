@@ -1,12 +1,12 @@
 /*
 Package protolog_syslog defines functionality for integration with syslog.
 */
-package protolog_syslog // import "go.pedge.io/protolog/syslog"
+package protolog_syslog
 
 import (
 	"log/syslog"
 
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 )
 
 var (

@@ -1,7 +1,7 @@
 /*
 Package protolog defines the main protolog functionality.
 */
-package protolog // import "go.pedge.io/protolog"
+package protolog
 
 import (
 	"fmt"

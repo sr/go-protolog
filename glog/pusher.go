@@ -2,7 +2,7 @@ package protolog_glog
 
 import (
 	"github.com/golang/glog"
-	"go.pedge.io/protolog"
+	"github.com/sr/protolog"
 )
 
 var (
